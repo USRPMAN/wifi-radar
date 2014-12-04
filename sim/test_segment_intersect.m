@@ -12,7 +12,7 @@ b = [3, 3;
      2, 2];
 ref1 = [0, 1];
 ref2 = [1, 0];
-[does_cross, new_angles, remaining_dist] = segment_intersect(a, b, ref1, ref2)
+[does_cross, cross_points, new_angles, remaining_dist] = segment_intersect(a, b, ref1, ref2)
 
 
 end
