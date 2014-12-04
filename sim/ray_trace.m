@@ -37,7 +37,9 @@ for iteration=1:num_iterations % later could change to while loop
     best_remaining_dist = zeros(num_rays, 1);
     best_new_angles = zeros(num_rays, 1);
     
-    % preset to arbitrary large distance
+    % Check for intersection with each wall
+    % Keep track of which intersected wall was closest, in the event that the 
+    % distance step of the ray intersects 2 walls
     for wall_idx=1:size(walls, 1)
         ref1 = walls(wall_idx, [1, 3]);
         ref2 = walls(wall_idx, [2, 4]);
