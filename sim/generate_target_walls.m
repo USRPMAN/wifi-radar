@@ -1,6 +1,6 @@
 function [walls] = generate_target_walls(target)
 
-num_sides=16;
+num_sides=128;
 radius=0.5;
 angles=0:360.0/num_sides:360-1e-9;
 corners=[cosd(angles')*radius, sind(angles')*radius] + repmat(target, [num_sides, 1]);
