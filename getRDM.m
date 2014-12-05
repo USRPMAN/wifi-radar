@@ -26,7 +26,8 @@ function rdm = getRDM(ref_sig, obs, numPulses, pulseStartIdx)
 
 % Total number of integrated samples
 Nint = length(obs);
-numDopplerBins = 512;
+numDopplerBins = 128; %Doppler resolution = c/(fc * Nint * Ts), 
+                      % i.e. c / (2.4GHz * length of input data)
 p = -numDopplerBins/2:numDopplerBins/2-1;
 
 % Use a cell array to store each initial time cross correlation in case
@@ -60,7 +61,7 @@ maxLength = max(chi_m_lengths);
 
 chi_m_vec = 1j*zeros(maxLength, numPulses);
 for m = 1:numPulses
-    chi_m_vec(1:chi_m_lengths(m), :) = chi_m_trimmed{m};
+    chi_m_vec(1:chi_m_lengths(m), m) = chi_m_trimmed{m};
 end
 
 % Form RDMs ... I think we can just take the fft and get it to do the same
