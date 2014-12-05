@@ -14,6 +14,10 @@ function [does_cross, cross_points, new_angles, remaining_dist] = segment_inters
 r = b - a;
 s = ref2 - ref1;
 
+if s(1) < 0
+    s = s*-1;
+end
+
 rcs = r(:, 1) .* s(:, 2) - r(:, 2) .* s(:, 1);
 
 qmp = repmat(ref1, [size(a, 1), 1]) - a;
@@ -41,10 +45,7 @@ part1_dist = sqrt(sum(move_to_cross .* move_to_cross, 2));
 total_dist = sqrt(sum(r(does_cross, :) .* r(does_cross, :), 2));
 remaining_dist = total_dist - part1_dist;
 
-% TODO assumes that ref2 is to the right of ref1, should enforce this
-% somewhere
-wall_delta = ref2 - ref1;
-wall_angles = atan2d(wall_delta(:, 2), wall_delta(:, 1));
+wall_angles = atan2d(s(:, 2), s(:, 1));
 
 % Compute new angles
 old_angles = atan2d(r(does_cross, 2), r(does_cross, 1));
