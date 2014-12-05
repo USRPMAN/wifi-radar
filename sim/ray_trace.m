@@ -1,4 +1,4 @@
-function ray_trace(Tx, Rx, walls, fc, sample_freq)
+function ray_trace(Tx, Rx, walls, fc, sample_freq, target_position)
 % Tx: [x, y]
 % Rx: [x, y]
 % walls: [size, 4] (x_start, x_end, y_start, y_end)
@@ -8,8 +8,11 @@ function ray_trace(Tx, Rx, walls, fc, sample_freq)
 % At the moment doesn't deal with a moving target, or really
 % a target at all.
 
-num_rays = 400;
+num_rays = 800;
 ray_angles = 0:360/num_rays:360-1e-9;
+
+target_walls = generate_target_walls(target_position);
+walls(end+1:end+size(target_walls, 1), :) = target_walls;
 
 % rays: [x, y, ray_angle, tx_coef]
 % tx_coef: starts at 1, lower if going through walls
