@@ -1,8 +1,7 @@
-function [impulse_response] = ray_trace(Tx, Rx, walls, fc, sample_freq, target_position)
+function [impulse_response] = ray_trace(Tx, Rx, walls, sample_freq, target_position)
 % Tx: [x, y]
 % Rx: [x, y]
 % walls: [size, 4] (x_start, x_end, y_start, y_end)
-% fc: frequency
 % sample_freq: frequency
 %
 
