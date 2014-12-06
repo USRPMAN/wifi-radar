@@ -7,10 +7,8 @@ walls = [8, 8, -10, 10;
 target_position = [4, 4];
 
 load('test_data/test_ray_trace.mat');
-expected_result = imp_res;
 
 impulse_response = ray_trace(Tx, Rx, walls, 3e9, target_position);
-
-assert(all(impulse_response == expected_result));
+assert(all(impulse_response == expect_imp_res));
     
 end

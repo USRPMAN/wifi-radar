@@ -9,6 +9,9 @@ function [impulse_response] = ray_trace(Tx, Rx, walls, sample_freq, ...
 ip = inputParser;
 ip.addOptional('num_iterations', 800);
 ip.addOptional('num_rays', 1000);
+ip.addOptional('wall_pass_gain', 0.8);
+ip.addOptional('wall_refl_gain', 0.4);
+ip.addOptional('gain_prune_cutoff', 0.001);
 ip.addOptional('plot', 0);
 ip.parse(varargin{:})
 args = ip.Results;
@@ -84,8 +87,6 @@ for iteration=1:args.num_iterations % later could change to while loop
     % Keep track of which intersected wall was closest, in the event that the 
     % distance step of the ray intersects 2 walls
     for wall_idx=1:size(walls, 1)
-        ref1 = walls(wall_idx, [1, 3]);
-        ref2 = walls(wall_idx, [2, 4]);
         [does_cross, cross_points, new_angles, remaining_dist] = ...
             segment_intersect(rays(:, 1:2), pos_update, ...
             walls(wall_idx, :));
@@ -115,10 +116,10 @@ for iteration=1:args.num_iterations % later could change to while loop
             [best_cross_points(all_does_cross, 1), ...
              best_cross_points(all_does_cross, 2), ...
              best_new_angles(all_does_cross), ...
-             rays(all_does_cross, 4) * 0.631]; % TODO
+             rays(all_does_cross, 4) * args.wall_refl_gain];
                   
         % Attenuate path that hit wall
-        rays(all_does_cross, 4) = rays(all_does_cross, 4) * 0.631; % TODO
+        rays(all_does_cross, 4) = rays(all_does_cross, 4) * args.wall_pass_gain;
     end
     
     % Move rays forward
@@ -127,7 +128,7 @@ for iteration=1:args.num_iterations % later could change to while loop
     
     % Prune rays that have below certain strength
     sig_strength = rays(:, 4) / r;
-    above_cutoff = sig_strength > 0.001; % TODO
+    above_cutoff = sig_strength > args.gain_prune_cutoff;
     rays = rays(above_cutoff, :);
     
     if args.plot
