@@ -10,8 +10,7 @@ load('test_data/test_ray_trace.mat');
 expected_result = imp_res;
 
 impulse_response = ray_trace(Tx, Rx, walls, 3e9, target_position);
-if sum(abs(impulse_response - expected_result)) > 0
-    error('Test Failed')
-end
+
+assert(all(impulse_response == expected_result));
     
 end
