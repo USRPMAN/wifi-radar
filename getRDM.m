@@ -68,11 +68,14 @@ end
 % thing but just implementing the formula as is for now
 rdm = 1j*zeros(maxLength, numDopplerBins);
 for l = 1:maxLength
-    for m = 1:numPulses
-        rdm(l, :) = rdm(l, :) + ...
-            exp(-1j*2*pi*p*pulseStartIdx(m)/Nint) * chi_m_vec(l, m);
-    end
+%     for m = 1:numPulses
+%         rdm(l, :) = rdm(l, :) + ...
+%             exp(-1j*2*pi*p*pulseStartIdx(m)/Nint) * chi_m_vec(l, m);
+%     end
+    rdm(l, :) = sum(exp(-1j*2*pi*p'*pulseStartIdx/Nint) .* repmat(chi_m_vec(l, :), [length(p), 1]), 2);
 end
+
+return;
                      
 
     
