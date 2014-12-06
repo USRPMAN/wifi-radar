@@ -55,14 +55,12 @@ if sum(does_cross) == 0
     return
 end
 
+% Cross point is pt + delta_pt*t
 cross_points = pt(does_cross, :) + delta_pt(does_cross, :) .* ...
     repmat(t(does_cross, :), [1, 2]);
 
-% TODO next 4 lines can be more efficient -- use (1-t)*delta_pt
-move_to_cross = delta_pt(does_cross, :) .* repmat(t(does_cross, :), [1, 2]);
-part1_dist = sqrt(sum(move_to_cross .* move_to_cross, 2));
-total_dist = sqrt(sum(delta_pt(does_cross, :) .* delta_pt(does_cross, :), 2));
-remaining_dist = total_dist - part1_dist;
+remaining_dist = (1.0-t(does_cross)) ...
+    .* sqrt(sum(delta_pt(does_cross, :) .* delta_pt(does_cross, :), 2));
 
 % Compute new angles
 wall_angles = atan2d(wall_vec(:, 2), wall_vec(:, 1));
@@ -78,7 +76,7 @@ cross_points = cross_points + 10^-9 * unit_vectors;
 if args.plot
     figure()
     hold on
-    line(wall_pt1, wall_pt2)
+    line([wall(1), wall(3)], [wall(2),wall(4)])
     a_cross = pt(does_cross, :);
     ref_pos = cross_points + unit_vectors .* ...
         repmat(remaining_dist, [1, 2]);
