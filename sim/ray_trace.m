@@ -88,7 +88,7 @@ for iteration=1:args.num_iterations % later could change to while loop
         ref2 = walls(wall_idx, [2, 4]);
         [does_cross, cross_points, new_angles, remaining_dist] = ...
             segment_intersect(rays(:, 1:2), pos_update, ...
-            ref1, ref2);
+            walls(wall_idx, :));
         
         if sum(does_cross) > 0
             temp_remaining_dist = zeros(args.num_rays, 1);

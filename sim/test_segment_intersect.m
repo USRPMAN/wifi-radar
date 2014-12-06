@@ -15,10 +15,12 @@ b = [3, 3;
 ref1 = [0, 1];
 ref2 = [1, 0];
 
+wall = [0, 1, 1, 0];
+
 load('test_data/test_segment_intersect.mat');
 
 [does_cross1, cross_points1, new_angles1, remaining_dist1] = ...
-    segment_intersect(a, b-a, ref1, ref2);
+    segment_intersect(a, b-a, wall);
 
 assert(all(does_cross == does_cross1));
 assert(all(all(cross_points == cross_points1)));

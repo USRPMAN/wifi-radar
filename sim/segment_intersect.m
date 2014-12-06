@@ -1,5 +1,5 @@
 function [does_cross, cross_points, new_angles, remaining_dist] = ...
-    segment_intersect(pt, delta_pt, wall_pt1, wall_pt2, varargin)
+    segment_intersect(pt, delta_pt, wall, varargin)
 % Determine if point moving a small increment intersercts a fixed wall
 % If there is an intersection, find the intersection point, the reflection
 % direction, and the amount of distance left to move such that
@@ -27,7 +27,7 @@ ip.parse(varargin{:})
 args = ip.Results;
 
 % Always have the wall vector pointing in +x direction
-wall_vec = wall_pt2 - wall_pt1;
+wall_vec = [wall(2) - wall(1), wall(4) - wall(3)];
 if wall_vec(1) < 0
     wall_vec = wall_vec*-1;
 end
@@ -35,7 +35,7 @@ end
 % Find cross product of wall vector and ray movement vector
 xprod = delta_pt(:, 1) .* wall_vec(:, 2) - delta_pt(:, 2) .* wall_vec(:, 1);
 
-qmp = repmat(wall_pt1, [size(pt, 1), 1]) - pt;
+qmp = repmat([wall(1), wall(3)], [size(pt, 1), 1]) - pt;
 t = (qmp(:, 1) .* wall_vec(:, 2) - qmp(:, 2) .* wall_vec(:, 1)) ./ xprod;
 u = (qmp(:, 1) .* delta_pt(:, 2) - qmp(:, 2) .* delta_pt(:, 1)) ./ xprod;
 
