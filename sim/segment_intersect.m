@@ -27,10 +27,11 @@ ip.parse(varargin{:})
 args = ip.Results;
 
 % Always have the wall vector pointing in +x direction
-wall_vec = [wall(2) - wall(1), wall(4) - wall(3)];
-if wall_vec(1) < 0
-    wall_vec = wall_vec*-1;
+if wall(1) > wall(2)
+    wall = [wall(2), wall(1), wall(4), wall(3)];
 end
+
+wall_vec = [wall(2) - wall(1), wall(4) - wall(3)];
 
 % Find cross product of wall vector and ray movement vector
 xprod = delta_pt(:, 1) .* wall_vec(:, 2) - delta_pt(:, 2) .* wall_vec(:, 1);

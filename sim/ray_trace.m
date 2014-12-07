@@ -37,8 +37,9 @@ end
 
 impulse_response = zeros(args.num_iterations, 1);
 for iteration=1:args.num_iterations % later could change to while loop
-    t = iteration / sample_freq;
+    t = (iteration-1) / sample_freq;
     r = 3e8 * t;
+    delta_r = 3e8 / sample_freq;
     args.num_rays = size(rays, 1);
     
     if numel(rays) == 0
@@ -48,33 +49,29 @@ for iteration=1:args.num_iterations % later could change to while loop
     pos_update = [cosd(rays(:, 3)), sind(rays(:, 3))] * 3e8 * time_step;
     
     % look for intersection of rays with Rx
+    % Consider the trapezoid that this ray will cover in this iteration and
+    % whether the receiver point is inside that
+    % This check is expensive so first make a bounding circle around the
+    % trapezoid, and only do the full point in polygon calculation if
+    % inside the circle
     current_vec_to_rx = rays(:, 1:2) - repmat(Rx, [size(rays, 1), 1]);
     current_dist_to_rx = sqrt(sum(abs(current_vec_to_rx).^2, 2));
     
-    half_cone_width = pi*r / args.num_rays;
-    current_intersect = current_dist_to_rx < max(8*half_cone_width, 3e8/sample_freq);
+    cwidth = sqrt(2*r^2 * (1-cosd(360 / args.num_rays))) / 2;
+    cwidth_next = sqrt(2*(r+delta_r)^2 * (1-cosd(360 / args.num_rays))) / 2;
+    circ_size = sqrt(delta_r^2 + cwidth_next^2);
+    circ_intersect = current_dist_to_rx < circ_size;
     
-    % TODO current algorithm for detecting whether a ray has hit the Rx has
-    % some flaws. I'm approximating the current coverage of the ray (cone) 
-    % by a circle rather than a trapezoid because it made the geometry
-    % easier. Need to change instead to detect whether the Rx point is
-    % inside the trapezoid. Currently this will work sometimes, not others.
-    % With higher sampling rate it is more likely to work correctly
-    vec1 = repmat(Rx, [size(rays, 1), 1]) - rays(:, 1:2);
-    vec1_norm = sqrt(sum(abs(vec1).^2, 2));
-    vec2 = repmat(Rx, [size(rays, 1), 1]) - rays(:, 1:2) - pos_update;
-    vec2_norm = sqrt(sum(abs(vec2).^2, 2));
-    
-    pos_update_norm = sqrt(sum(abs(pos_update).^2, 2));
-    
-    ang1 = acosd(dot(vec1, pos_update, 2) ./ (vec1_norm .* pos_update_norm));
-    ang2 = acosd(dot(vec2, pos_update, 2) ./ (vec2_norm .* pos_update_norm));
-    
-    add_to_rx = current_intersect & (ang1 <= 90 | ang1 >= 270) ...
-        & (ang2 > 90 & ang2 < 270);
-    if sum(add_to_rx) > 0
-        impulse_response(iteration) = impulse_response(iteration) + ...
-            sum(rays(add_to_rx, 4) / r);
+    % For rays whose circles intersected the Rx, do the full calculation
+    if sum(circ_intersect) > 0
+        for idx=find(circ_intersect')
+            inside = rx_intersect(Rx, rays(idx,1:2), rays(idx,1:2) + pos_update(idx,:), ...
+                cwidth, cwidth_next, rays(idx, 3), 'plot', 0);
+            if inside
+                impulse_response(iteration) = impulse_response(iteration) + ...
+                rays(idx, 4) / r;
+            end
+        end
     end
     
     % Check for intersecting with walls
@@ -137,13 +134,14 @@ for iteration=1:args.num_iterations % later could change to while loop
 
         hold on
         plot(Rx(1), Rx(2), 'x');
+        plot(Tx(1), Tx(2), '*');
         for wall_idx=1:size(walls, 1)
             w = walls(wall_idx, :);
             line([w(1), w(2)], [w(3), w(4)]);
         end
 
         scatter(rays(:, 1), rays(:, 2));
-        axis([-20, 20, -20, 20]);
+        axis([-10, 10, -10, 10]);
         hold off
 
         subplot(1,2,2)

@@ -23,8 +23,10 @@ ip.addOptional('plot', 0);
 ip.parse(varargin{:})
 args = ip.Results;
 
+inc = 180.0 / args.num_sides;
+
 angles=0:360.0/args.num_sides:360-1e-9;
-corners=[cosd(angles')*args.radius, sind(angles')*args.radius] + ...
+corners=[cosd(angles' + inc)*args.radius, sind(angles' + inc)*args.radius] + ...
     repmat(target, [args.num_sides, 1]);
 walls=[corners(:, 1), corners([2:end,1], 1), ...
     corners(:, 2), corners([2:end,1], 2)];
