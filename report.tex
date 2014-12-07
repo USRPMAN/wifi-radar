@@ -1,0 +1,190 @@
+\documentclass[article,11pt,onecolumn,final]{IEEEtran}
+\usepackage{epsfig,latexsym,amsfonts,amsmath,amssymb,verbatim,cite,mathrsfs}
+\usepackage{graphicx}
+\usepackage[dvips]{color}
+
+\newtheorem{theorem}{Theorem}
+
+\title{Passive Bistatic Radar using WiFi for Indoor Localization}
+
+\author{\IEEEauthorblockN{Alexander and Ernest (TODO last names)}  \\
+\IEEEauthorblockA{Department of Electrical and Computer Engineering\\ 
+Boston University
+}}
+
+\begin{document}
+
+\maketitle
+\begin{abstract}
+As wireless networks have become commonplace in homes and offices, the opportunity arises to use
+these signals for localization of a person or other target. Applications could range from improving indoor
+location in the absence of GPS signals to locating an intruder inside a building. This project will explore
+applying bistatic radar techniques to indoor localization of a target in an environment with IEEE 802.11
+transmissions. This study will survey several papers that propose techniques for passive bistatic radar
+using WiFi. Under simulations of indoor fading with walls and ceilings, these techniques will be
+implemented and compared for detecting stationary and moving targets. The project will aim to
+determine which techniques work well under which conditions.
+\end{abstract}
+
+\section{Introduction and motivation} 
+Passive radar is a field that has relatively recently gained interest and traction due to the abundance of
+RF emissions for communication purposes, covert and inexpensive receivers, and the rise of powerful
+computers for implementing sophisticated signal processing algorithms. "WiFi radar" is an even newer
+field that aims to use 802.11 emissions from standard noncooperative routers to perform indoor
+localization. There are many potential applications of this technology: use as a supplement to GPS,
+which typically has too low of a signal strength indoors to adequately track, track equipment in a
+warehouse or factory, or detect targets using standard, everyday equipment without their knowledge as
+a part of a security, surveillance or search and rescue system.
+
+There already exist well known radar detection and tracking algorithms in the bistatic case, where the
+transmitter and receiver are not collocated. However, standard radar systems have complete freedom
+over their transmitted waveform and can therefore optimize for target tracking performance. One major
+challenge in passive radar systems is the fact that the system has no control over the waveform, which
+typically is a communication system waveform that is less than ideal for target localization. WiFi radar
+poses the additional challenge that the multipath environment is extremely dense indoors, but has the
+significant benefit that 802.11 devices are extremely widespread and commonplace.
+
+The basic, first level construct in typical modern radar systems is a range-Doppler map – a2D plot of
+signal power as a function of time delay and received Doppler shift. From this, high power level spots in
+this map can be inferred to be targets at a specific range and range-rate, and targets that repeatedly
+appear in these maps over time can be tracked. This project aims to form range-Doppler maps from
+simulated data using a variety of proposed algorithms.
+
+\section{Problem Statement} 
+Our goal is to first simulate a simple indoor scenario with both stationary and moving targets using 
+pre-existing OFDM waveform simulations, such as that in [5], and ray tracing. Total received signal at the
+receive antenna is modeled as
+
+\begin{align*}
+ s(t) = \sum_{l=1}^L A_l u(t-\tau_l)e^{j 2 \pi f_l t} + \sum_{m=1}^M A_m u(t-\tau_m)e^{j 2\pi f_m t} +
+        \sum_{n=1}^N A_n u(t-\tau_n)e^{j 2 \pi f_n t} + A_{Dir} u(t-\tau_{Dir})
+\end{align*}
+
+Where $u(t)$ is the transmitted signal, there are $L$ targets, each scaled by $A_l$ in amplitude and time
+delayed by $\tau_l$. Similarly, there are $M$ multipath returns and $N$ clutter returns all scaled and time delayed
+similarly, and finally the direct path return, which arrives first. This is given in [1] and was discussed in
+class.
+
+We will calculate the ambiguity function of the simulated data, given by
+
+\begin{align*}
+\big|\int_{-\infty}^{\infty} s(t)s^*(t-\tau)e^{-j2\pi f_d t}dt \big|
+\end{align*}
+
+Which essentially provides useful information about the suitability of the OFDM WiFi waveform as a
+radar signal, such as range resolution and Doppler resolution. Finally, we will implement range-Doppler
+map forming algorithms as described in [1-4] and explain how these maps would be used to localize
+targets.
+
+
+\section{Main Results}
+
+\begin{itemize}
+
+\item Begin with a high-level overview of the approach taken to solve the problem. The goal is to help prepare the reader for the more technical part to follow.
+
+\item Describe the technical approach(s) taken to solve the problem stated above. Use mathematical expressions wherever appropriate. This should be written at a sufficient level of detail so that an interested reader could redo your work.
+
+\item It may be helpful to split this several into separate regions. For instance, if we were considering the uplink channel that we studied in class, I would create sections named Capacity Region, CDMA, TDMA, and Successive Cancellation, rather than discussing all of these in one place. 
+
+\end{itemize} 
+
+\begin{theorem}
+If you have any theorems to discuss, this section is the right place to state them. Clearly indicate where you got the theorem, including both the paper and the theorem number within that paper (e.g.,~\cite[Theorem 2]{Shannon1948}).
+\begin{equation}
+C = \log(1 + \mathsf{SNR}) \label{e:capacity}
+\end{equation}
+\end{theorem}
+\begin{IEEEproof}
+If the theorem only requires a short proof, then give the proof immediately after the theorem. If it requires more space, consider relegating it to an appendix. 
+\end{IEEEproof}
+
+\section{Simulations} 
+
+\begin{itemize}
+\item Don't be indiscriminate in what
+you are simulating. Think clearly about what you hope to learn or
+illustrate though simulations. Choose the right experiments and the
+right experimental conditions (the parameters). A few well chosen experiments
+are more useful than tons of poorly planned experiments.
+
+\item Clearly describe how you generated the simulations. Refer to the ``equation numbers'' of the key equations used in the simulations, such as~\eqref{e:capacity}.
+ How did you choose
+the values of parameters? What are their values? How many
+trials did you run? In other words, the information you
+provide here should be sufficiently detailed to permit a knowledgable
+individual reading your report to reproduce your figures.
+
+\item Provide plots, figures/pictures,
+tables, and/or numerical data. Each item should have a title and a
+caption and should be referenced in the report. The caption should be
+self-contained as far as possible, that is, someone reading your
+report should be able to get a very good idea of the results by just
+reading the caption without having to read the text of the
+report. All axes should be properly
+labeled and the plot should have a legend. Make sure the font size is chosen so that the 
+text is legible from a print out.
+
+\item Discuss your results. What did you learn from the
+simulations? Are the experiments in agreement with any theory? If so,
+explain how? 
+
+\item Be sure to include a copy of the code used to generate your figures when you submit the report.
+
+\item If this is a literature survey, and you were trying to reproduce some of the figures in the paper, clearly indicate which figures and discuss how closely your figures agree with the original figures. If they do not completely match, explain why.
+
+\end{itemize}
+
+\section{Concluding remarks}
+
+\begin{itemize}
+
+\item In a few sentences, give a high-level overview of your work and findings (what you learnt).
+
+\item Highlight and explain what you think are the
+strong points of your work and why. This could include: interesting
+insights, illuminating simulations, or proof
+techniques.
+
+\item Explain what you think is less than
+satisfactory in this work. This could include: limitations of the
+modeling assumptions, sensitivity of the conclusions to uncertainty in
+parts of the available information, computational intractability of
+verification through experiments/simulations, etc.
+
+\item How does this work personally
+inspire you to think beyond this work? What are your recommendations
+for future research directions that you would like to see pursued?
+
+\end{itemize}
+
+\begin{thebibliography}{100}
+
+\bibitem{Chetty} Chetty, K.; Smith, G.E.; Woodbridge, K., "Through-the-Wall Sensing of Personnel Using Passive
+Bistatic WiFi Radar at Standoff Distances," Geoscience and Remote Sensing, IEEE Transactions on ,
+vol.50, no.4, pp.1218,1226, April 2012
+doi: 10.1109/TGRS.2011.2164411
+
+\bibitem{Maechler} Maechler, P.; Felber, N.; Kaeslin, H., "Compressive sensing for WiFi-based passive bistatic radar,"
+Signal Processing Conference (EUSIPCO), 2012 Proceedings of the 20th European , vol., no.,
+pp.1444,1448, 27-31 Aug. 2012
+
+\bibitem{Buonanno} Buonanno, A.; D'Urso, M.; Palmieri, L., "Wifi-based passive bistatic radar by using moving target
+indicator and least square adaptive filtering," Phased Array Systems \& Technology, 2013 IEEE
+International Symposium on , vol., no., pp.174,179, 15-18 Oct. 2013
+
+\bibitem{Colone2012} Colone, F.; Falcone, P.; Bongioanni, C.; Lombardo, P., "WiFi-Based Passive Bistatic Radar: Data
+Processing Schemes and Experimental Results," Aerospace and Electronic Systems, IEEE Transactions
+onAerospace and Electronic Signals, Vol. 48, no.2, pp.1061-1079, Apr. 2012
+
+\bibitem{Hemple} Hemple, S., “Analysis and Simulation of Wireless ODFM Communications,” M.S. Thesis, Dept. of
+Mathematics and Statistics, San Diego State Univ., San Diego, CA, Apr. 2012
+
+\bibitem{Colone2011} Colone, F., “Ambiguity Function Analysis of Wireless LAN Transmissions for Passive Radar,”
+Aerospace and Electronic Systems, IEEE Transactions on Aerospace and Electronic Systems, Vol. 47, No.1,
+pp. 240-264, Jan. 2011
+
+
+\end{thebibliography}
+
+\end{document}
