@@ -99,7 +99,11 @@ C = \log(1 + \mathsf{SNR}) \label{e:capacity}
 If the theorem only requires a short proof, then give the proof immediately after the theorem. If it requires more space, consider relegating it to an appendix. 
 \end{IEEEproof}
 
-\section{Simulations} 
+\section{Simulations}
+\subsection{Simulating Indoor Channel with Multipath Fading}
+The first step to simulate passive radar in an indoor setting is build a model for indoor fading. It is difficult to create a model that perfectly models walls, ceilings, furniture, etc. This project used an approach similar to that described in \cite{Holt}. This project implemented a ray tracing simulation to estimate the impulse response of the channel in an environment with walls and a moving object. 
+
+\section{Simulations (Expectations)} 
 
 \begin{itemize}
 \item Don't be indiscriminate in what
@@ -183,6 +187,8 @@ Mathematics and Statistics, San Diego State Univ., San Diego, CA, Apr. 2012
 \bibitem{Colone2011} Colone, F., “Ambiguity Function Analysis of Wireless LAN Transmissions for Passive Radar,”
 Aerospace and Electronic Systems, IEEE Transactions on Aerospace and Electronic Systems, Vol. 47, No.1,
 pp. 240-264, Jan. 2011
+
+\bibitem{Holt} Holt, T.; Pahlavan, K.; Lee, J-F, "A graphical indoor radio channel simulator using 2D ray tracing," Personal, Indoor and Mobile Radio Communications, 1992. Proceedings, PIMRC '92., Third IEEE International Symposium on , vol., no., pp.411,416, 19-21 Oct 1992
 
 
 \end{thebibliography}
