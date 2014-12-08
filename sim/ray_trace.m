@@ -9,9 +9,10 @@ function [impulse_response] = ray_trace(Tx, Rx, walls, sample_freq, ...
 ip = inputParser;
 ip.addOptional('num_iterations', 800);
 ip.addOptional('num_rays', 1000);
-ip.addOptional('wall_pass_gain', 0.8);
-ip.addOptional('wall_refl_gain', 0.4);
+ip.addOptional('wall_pass_gain', 0.5);
+ip.addOptional('wall_refl_gain', 0.7);
 ip.addOptional('gain_prune_cutoff', 0.001);
+ip.addOptional('fc', 2.4e9);
 ip.addOptional('plot', 0);
 ip.parse(varargin{:})
 args = ip.Results;
@@ -21,9 +22,9 @@ ray_angles = 0:360/args.num_rays:360-1e-9;
 target_walls = generate_target_walls(target_position);
 walls(end+1:end+size(target_walls, 1), :) = target_walls;
 
-% rays: [x, y, ray_angle, tx_coef]
+% rays: [x, y, ray_angle, tx_coef, num_reflections]
 % tx_coef: starts at 1, lower if going through walls
-rays = zeros(args.num_rays, 4);
+rays = zeros(args.num_rays, 5);
 rays(:, 1) = Tx(1);
 rays(:, 2) = Tx(2);
 rays(:, 3) = ray_angles;
@@ -68,8 +69,10 @@ for iteration=1:args.num_iterations % later could change to while loop
             inside = rx_intersect(Rx, rays(idx,1:2), rays(idx,1:2) + pos_update(idx,:), ...
                 cwidth, cwidth_next, rays(idx, 3), 'plot', 0);
             if inside
+                magnitude = rays(idx, 4) / r;
+                phase = 2*pi*args.fc*t + pi * rays(idx, 5);
                 impulse_response(iteration) = impulse_response(iteration) + ...
-                rays(idx, 4) / r;
+                magnitude * exp(-1i * phase);
             end
         end
     end
@@ -113,7 +116,8 @@ for iteration=1:args.num_iterations % later could change to while loop
             [best_cross_points(all_does_cross, 1), ...
              best_cross_points(all_does_cross, 2), ...
              best_new_angles(all_does_cross), ...
-             rays(all_does_cross, 4) * args.wall_refl_gain];
+             rays(all_does_cross, 4) * args.wall_refl_gain, ...
+             rays(all_does_cross, 5) + 1];
                   
         % Attenuate path that hit wall
         rays(all_does_cross, 4) = rays(all_does_cross, 4) * args.wall_pass_gain;
