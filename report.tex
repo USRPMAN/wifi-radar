@@ -91,19 +91,39 @@ Range Doppler maps are formed in a passive system as follows. It is essentially 
 
 The 2D cross-correlation is given by
 
-$ C[l, p] = \abs{\sum\limits_{i=0}^{N_{int}-1} s_{surv}[i]*s_{ref}^{*}[i - l]*e^{-j2\pi pi/N_{int}}}^2
+$ C[l, p] = \abs{\sum\limits_{i=0}^{N_{int}-1} s_{surv}[i]*s_{ref}^{*}[i - l]*e^{-j2\pi pi/N_{int}}}^2$
 
 where $l$ is the time delay bin which specifies range of echoes from that cell, $p$ is the Doppler bin which specifies Doppler shift frequency of that cell. $N_{int}$ is total number of raw samples in $s_{surv}$. Time delay bin and Doppler bin can both be converted to real quantities (meters and meters/second) as follows. The difference between the direct path distance and target bistatic range (known as the differential bistatic range) is $\delta R[l] = c*l*T_s$, where $T_s$ is equal to $1/f_s$, the A/D sample frequency. The Doppler bin p represents a Doppler frequency shift of $f_D[p] = p/(N_{int}T_s)$, which is converted into a Doppler velocity of $\delta v[p] = \lambda f_D[p]$. The quantity $N_{int}T_s$ is the CPI, or coherent processing interval, which determines Doppler resolution of the system as well as SNR gain, and for WiFi radar in our application is on the order of 1 second. At 2.4GHz this gives a Doppler resolution of 0.125 m/s.
 
 According to \cite{Colone2012}, the 2D cross-correlation can be approximated by
 
-$ C[l, p] = \abs{\sum\limits_{m=0}^{M-1}\exp{-j2\pi pi_m/N_{int}}\chi^{(m)}[l]}^2
+$ C[l, p] = \abs{\sum\limits_{m=0}^{M-1}\exp{-j2\pi pi_m/N_{int}}\chi^{(m)}[l]}^2$
 
 with $M$ number of pulses in this CPI, $i_m$ the time index of the irst sample of $m$th pulse, and $\chi^{(m)}[l] the $l$th sample of the cross-correlation function in the time (range) direction for the $m$th pulse. This time cross correlation is calculated with the MATLAB xcorr function, separating OFDM pulses out by start time index and correlating the observed and reference signals over identical indices. So we have a cross-correlation of each pulse with each observed vector at the receiver; these are trimmed such that the first time index corresponds to a range of 0 meters and the last time index corresponds to the length of an 802.11g OFDM pulse (4 microseconds, 1200 meters).
 
 Next we choose our number of Doppler bins by the maximum velocity we wish to detect. We used 128 for this simulation, which gives a maximum absolute value of velocity of 8 m/s, again assuming integration time of 1s. Shorter integration times yield less fine velocity grading but higher max/min detectable velocity while keeping number of bins constant. The correlation in the velocity direction is computed explicitly in our code as written in the above approximation.
 
 \subsection{Extensive Cancellation Algorithm - Batches}
+
+The Extensive Cancellation Algorithm for removing direct path, multipath, and clutter echoes in passive radar is presented in \cite{Colone2006}, \cite{Colone2009}, and \cite{Colone2012}. It is essentially a Least-Squares algorithm that assumes clutter is in the nearest $K$ range bins and middle $P$ Doppler bins. The algorithm attempts to solve the problem
+
+$ \min_{\alpha}(\|s_{obs} - X\alpha\|^2) $
+
+Where $s_{obs}$ is the observed signal at the receiver of dimension $N x 1$. This is the "minimum residual signal power" after cancelling the clutter, direct path, and close range ground echoes in the aforementioned $K$ range bins and $P$ Doppler bins. The matrix X is
+
+$X = B[\Lambda_{-P}S_{ref} \cdots \Lambda_{-1}S_{ref} \hspace{5 mm} S_{ref} \hspace{5mm} \Lambda_{1}S_{ref} \cdots \Lambda_{P}S_{ref}]$
+
+where $B$ is the following permutation matrix
+
+$B = \left \{b_{ij} \right \}
+
+$\Lambda_p = 
+	\begin{bmatrix}
+	 1			&		0				&		\cdots		&		0 \\
+	 0			&		\exp{j2\pi p}	&		\cdots		&		0 \\
+	 \vdots 	&		\vdots			&		\ddots		&		\vdots \\
+	 0			&		0				&		\cdots		&		\exp{j2\pi p(N + R - 1)
+	\end{bmatrix}
 
 \begin{itemize}
 
