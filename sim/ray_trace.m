@@ -19,7 +19,8 @@ args = ip.Results;
 
 ray_angles = 0:360/args.num_rays:360-1e-9;
 
-target_walls = generate_target_walls(target_position);
+target_walls = generate_target_walls(target_position, ...
+    'num_sides', 4);
 walls(end+1:end+size(target_walls, 1), :) = target_walls;
 
 % rays: [x, y, ray_angle, tx_coef, num_reflections]
