@@ -19,7 +19,8 @@ args = ip.Results;
 
 ray_angles = 0:360/args.num_rays:360-1e-9;
 
-target_walls = generate_target_walls(target_position);
+target_walls = generate_target_walls(target_position, ...
+    'num_sides', 4);
 walls(end+1:end+size(target_walls, 1), :) = target_walls;
 
 % rays: [x, y, ray_angle, tx_coef, num_reflections]
@@ -62,15 +63,18 @@ for iteration=1:args.num_iterations % later could change to while loop
     cwidth_next = sqrt(2*(r+delta_r)^2 * (1-cosd(360 / args.num_rays))) / 2;
     circ_size = sqrt(delta_r^2 + cwidth_next^2);
     circ_intersect = current_dist_to_rx < circ_size;
-    
+        
     % For rays whose circles intersected the Rx, do the full calculation
     if sum(circ_intersect) > 0
         for idx=find(circ_intersect')
-            inside = rx_intersect(Rx, rays(idx,1:2), rays(idx,1:2) + pos_update(idx,:), ...
+            [inside, dist_to_rx] = rx_intersect(Rx, rays(idx,1:2), ...
+                rays(idx,1:2) + pos_update(idx,:), ...
                 cwidth, cwidth_next, rays(idx, 3), 'plot', 0);
             if inside
-                magnitude = rays(idx, 4) / r;
-                phase = 2*pi*args.fc*t + pi * rays(idx, 5);
+                exact_t = t + dist_to_rx / 3e8;
+                exact_r = 2e8 * exact_t;
+                magnitude = rays(idx, 4) / exact_r;
+                phase = 2*pi*args.fc*exact_t + pi * rays(idx, 5);
                 impulse_response(iteration) = impulse_response(iteration) + ...
                 magnitude * exp(-1i * phase);
             end

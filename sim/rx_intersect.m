@@ -1,4 +1,5 @@
-function [is_inside] = rx_intersect(Rx, ray1, ray2, cw1, cw2, angle, varargin)
+function [is_inside, dist_from_ray1] = rx_intersect(Rx, ray1, ray2, ...
+    cw1, cw2, angle, varargin)
 
 ip = inputParser;
 ip.addOptional('plot', 0);
@@ -20,8 +21,20 @@ end
 
 is_inside = mod(cnt, 2);
 
+% If inside, need to compute the phase
+dist_from_ray1 = -1;
+if is_inside
+    a = ray2 - ray1;
+    b = Rx - ray1;
+    dist_from_ray1 = dot(a, b) / sqrt(sum(a.^2));
+end
+
 if args.plot
+    figure()
+    hold on
     plot(pts([1:end,1], 1), pts([1:end,1], 2));
+    plot(ray1(1) + a(1)*dist_from_ray1/sqrt(sum(a.^2)), ray1(2) + ...
+        a(2)*dist_from_ray1/sqrt(sum(a.^2)));
     plot(Rx(1), Rx(2), 'x');
 end
     
