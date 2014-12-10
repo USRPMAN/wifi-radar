@@ -20,10 +20,12 @@ As wireless networks have become commonplace in homes and offices, the opportuni
 these signals for localization of a person or other target. Applications could range from improving indoor
 location in the absence of GPS signals to locating an intruder inside a building. This project will explore
 applying bistatic radar techniques to indoor localization of a target in an environment with IEEE 802.11
-transmissions. This study will survey several papers that propose techniques for passive bistatic radar
-using WiFi. Under simulations of indoor fading with walls and ceilings, these techniques will be
-implemented and compared for detecting stationary and moving targets. The project will aim to
-determine which techniques work well under which conditions.
+transmissions. This study surveys the feasibility of passive bistatic radar
+using WiFi under ray tracing simulations of indoor fading. Using these simulations, bistatic radar techniques are
+implemented to detect moving targets. This study finds that in low noise scenarios with few walls, the
+techniques are successfully able to detect a moving target. The simulation approach in this paper 
+provides an inexpensive platform for studying passive bistatic radar using WiFi and how the properties of
+the environment can impact the effectiveness of these techniques.
 \end{abstract}
 
 \section{Introduction and motivation} 
@@ -52,7 +54,7 @@ simulated data using a variety of proposed algorithms.
 
 \section{Problem Statement} 
 Our goal is to first simulate a simple indoor scenario with both stationary and moving targets using 
-pre-existing OFDM waveform simulations, such as that in \cite{Hemple}, and ray tracing. Total received signal at the receive antenna is modeled as
+pre-existing OFDM waveform simulations and ray tracing. Total received signal at the receive antenna is modeled as
 
 \begin{align*}
  s(t) = \sum_{l=1}^L A_l u(t-\tau_l)e^{j 2 \pi f_l t} + \sum_{m=1}^M A_m u(t-\tau_m)e^{j 2\pi f_m t} +
@@ -117,26 +119,27 @@ and $l_k$ represents the number of wall reflections, accounting for the phase sh
 
 The selection of time step sizes (corresponding to sampling rate) determines the amount of time and range resolution. For example, if a sampling rate of 3GHz is used, each ray moves 0.1 meter per time step, so it is not possible to get better than 0.1 meter resolution. During development, high sampling rates were used to prove out the concepts. For example, in the scenario below, 3GHz sampling rate was used to generate the impulse response. In the first figure, the transmitter is in the left room, the target is in the right room, and the receiver is to the left of the two rooms. The target is moving at 1m/s to the right. The simulation is performed 4 times, each 0.25 seconds apart. Therefore, in the second plot, the target has moved 0.25 meters to the right, and so the signal has traveled 0.5 meter further than in the first. We see that the third nonzero tap, corresponding to the reflection off the target, moves 5 taps to the right in each plot. With a resolution of 0.1 meters per time step, this is exactly what we expect.
 
+\pagebreak
+
 \begin{figure}
-\caption{stuff}
+\caption{Ray tracing the channel with a transmitter, receiver, target, and walls}
 \centering
-\includegraphics[width=400pt]{sim/simulation.png}  
-\label{fig:stuff}
+\includegraphics[width=400pt]{sim/simulation.png}  \\
+\label{fig:Ray Tracing Channel}
 \end{figure}
 
-
 \begin{figure}
-\caption{stuff2}
+\caption{$|h_l[m]|$ at m corresponding to t=[0, 0.25, 0.5, 0.75] seconds when sampling at 3GHz. Target moving 1 m/s to the right. }
 \centering
 \includegraphics[width=400pt]{sim/impulse_response_taps.png}  
-\label{fig:stuff2}
+\label{fig:Impulse Response}
 \end{figure}
 
-
-
-For the purposes of using 802.11g transmissions, we are assuming that we are only capable of sampling at the rate of the bandwidth, 20Mhz. At this rate, each ray travels at $\frac{3*10^8}{20*10^6} = 15$ meters per time step, so this is the limit of resolution possible. If a higher sampling rate were used, it is possible to increase the time and therefore range resolution.
+For the purposes of using 802.11g transmissions, we are assuming that we are only capable of sampling at the rate of the bandwidth, 20Mhz. At this rate, each ray travels at $\frac{3*10^8}{20*10^6} = 15$ meters per time step, so this is the limit of resolution possible. If a higher sampling rate were used, it would be possible to increase the time and therefore range resolution.
 
 \subsection{Data Generation}
+To perform the full simulation, the time varing channel impuse response is generated over the course of one second while sampling at 20MHz. To save computation time in simulation, $h_l$ is assumed to be constant for some period and is recomputed again. Experimentally, recomputing $h_l$ every $4 \mu s$, or 800 samples at 20 MHz yielded good results while speeding up computation by a factor of 800. Also, the number of time steps and corresponding taps was limited to save computation time. For example, if most of the information arrives in the first 5 time steps, the simulation may stop after 8 time steps. In this case, sampling $h_l[m]$ at 20Mhz for 1 second, using first 8 taps, holding constant for $4 \mu s$, results in a 25000x8 matrix for $h_l[m]$.
+
 Next, we convolved simulated data obtained from a Simulink model available on the MATLAB file exchange (TODO: ref / cite) with the time varying channel impulse response to obtain an 802.11g OFDM waveform at varying data rates as it might propagate around a room with a moving target. This data was saved and run through an algorithm to calculate a range-Doppler map, which is a 2D range-velocity plot commonly used in radar. Additionally, the extensive cancellation-batches algorithm was used to clean up the raw complex samples input to the range-Doppler map forming algorithm.
 
 \subsection{Range-Doppler Maps and Formation}
@@ -345,28 +348,29 @@ explain how?
 
 \end{itemize}
 
-\section{Concluding remarks (EXPECTATIONS)}
+\section{Concluding Remarks}
+This study has shown the feasibility of detecting the position and movement of a indoor target using bistatic
+radar techniques. The approach consisted of modeling the indoor channel using ray tracing, being sure to 
+model changes in propagation time and phase due to a target moving. After convolving a simulated 802.11g
+OFDM signal with the simulated time varing impulse response, the received signal is generated. The received
+signal is correlated with delay and Doppler shifted versions of the original signal, and combinations that correlate
+strongly indicate the range and speed of an object. In single, low noise scenarios the methodology has shown
+to be sound and could lead to a practical solution.
 
-\begin{itemize}
+Previous studies into passive bistatic radar have focused on real systems with measured data and expensive
+acquisition systems. This study adds value in that by simulating the channel with some basic assumptions, there 
+is a rapid and inexpensive way to study the same concepts. Furthermore, parameters such as reflectivity of
+walls can be varied and the impact can be studied. This could be particularly useful for those who want to know
+how to prevent others to perform this kind of analysis on their property.
 
-\item In a few sentences, give a high-level overview of your work and findings (what you learnt).
+There are some limitations in this study, for example that the ray tracing makes some simplifying assumptions, 
+such as that floors and ceilings are neglected. There is also some further work in academia with respect to bistatic
+radar that could improve results, including how to reduce the inteference from very strong direct signal. Future work
+should consider these techniques as well and whether they can improve results. In addition, with multiple receivers
+in separate locations, it is possible that trilateration, as is used in GPS, could be used to piece together multiple
+range-Doppler maps. This analysis would be necessary to build a complete localization solution.
 
-\item Highlight and explain what you think are the
-strong points of your work and why. This could include: interesting
-insights, illuminating simulations, or proof
-techniques.
 
-\item Explain what you think is less than
-satisfactory in this work. This could include: limitations of the
-modeling assumptions, sensitivity of the conclusions to uncertainty in
-parts of the available information, computational intractability of
-verification through experiments/simulations, etc.
-
-\item How does this work personally
-inspire you to think beyond this work? What are your recommendations
-for future research directions that you would like to see pursued?
-
-\end{itemize}
 
 \begin{thebibliography}{100}
 
