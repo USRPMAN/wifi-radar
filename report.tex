@@ -20,10 +20,12 @@ As wireless networks have become commonplace in homes and offices, the opportuni
 these signals for localization of a person or other target. Applications could range from improving indoor
 location in the absence of GPS signals to locating an intruder inside a building. This project will explore
 applying bistatic radar techniques to indoor localization of a target in an environment with IEEE 802.11
-transmissions. This study will survey several papers that propose techniques for passive bistatic radar
-using WiFi. Under simulations of indoor fading with walls and ceilings, these techniques will be
-implemented and compared for detecting stationary and moving targets. The project will aim to
-determine which techniques work well under which conditions.
+transmissions. This study surveys the feasibility of passive bistatic radar
+using WiFi under ray tracing simulations of indoor fading. Using these simulations, bistatic radar techniques are
+implemented to detect moving targets. This study finds that in low noise scenarios with few walls, the
+techniques are successfully able to detect a moving target. The simulation approach in this paper 
+provides an inexpensive platform for studying passive bistatic radar using WiFi and how the properties of
+the environment can impact the effectiveness of these techniques.
 \end{abstract}
 
 \section{Introduction and motivation} 
@@ -52,7 +54,7 @@ simulated data using a variety of proposed algorithms.
 
 \section{Problem Statement} 
 Our goal is to first simulate a simple indoor scenario with both stationary and moving targets using 
-pre-existing OFDM waveform simulations, such as that in \cite{Hemple}, and ray tracing. Total received signal at the receive antenna is modeled as
+pre-existing OFDM waveform simulations and ray tracing. Total received signal at the receive antenna is modeled as
 
 \begin{align*}
  s(t) = \sum_{l=1}^L A_l u(t-\tau_l)e^{j 2 \pi f_l t} + \sum_{m=1}^M A_m u(t-\tau_m)e^{j 2\pi f_m t} +
