@@ -182,7 +182,7 @@ Additionally, there is a range ambiguity that appears at 3.2 $\mu s$, correspond
 
 Velocity or Doppler resolution is limited mainly by the integration time and has very nice autocorrelation properties over frequency, as shown in figure~\ref{fig:autocorrdopp}. This was generated using an integration time of 1 second, which is the integration time used throughout this paper including the simulation results and corresponds to a velocity resolution of 0.125 $m/s$ per bin, as mentioned above.
 
-\begin{figure}
+\begin{figure}[H]
 	\caption{Autocorrelation function of WiFi data over Doppler shift dimension.}
 	\centering
 	\includegraphics[width=400pt]{figures/autocorrdopp.png}
@@ -285,7 +285,7 @@ Finally, range-Doppler maps were generated using equation \eqref{eq:2dccapprox}.
 
 The first scenario as seen in figures ~\ref{fig:sim1} and ~\ref{fig:rdm1} simply has the transmitter, receiver and target in a line with the target moving 4 $m/s$ toward the receiver and transmitter. There are no walls or added noise so we expect a strong return from the target to appear in time delay bin 4 and Doppler bin -32. Time bin 4 is 3 after the direct signal and corresponds to a two-way distance of 45m, Doppler bin -32 with bin spacing of 0.125 $m/s$ corresponds to the velocity of -4 $m/s$. Also note that both the direct path and target return spreads throughout all ranges due to the autocorrelation function issues pointed out earlier in the report. In fact, the 0 Doppler slice is exactly equal to the autocorrelation function of the data in this case. The range ambiguity at the 3.2 $\mu s$ time delay is also apparent and may be confused for additional targets by a full system.
 
-The second scenario simply has the target moving in the opposite direction and additionally has a vertical wall placed in between the transmitter/receiver and target.
+The second scenario as seen in figures ~\ref{fig:sim2} and ~\ref{fig:rdm2} has the target moving in the opposite direction and additionally has a vertical wall placed in between the transmitter/receiver and target. All distances remain the same and the target return is seen on the other side of the RDM. Additionally, it is significantly reduced in power due to attenuation from the wall.
 
 \subsection{Scenario 3 Results}
 
