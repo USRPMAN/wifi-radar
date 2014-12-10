@@ -113,21 +113,21 @@ and $l_k$ represents the number of wall reflections, accounting for the phase sh
 
 The selection of time step sizes (corresponding to sampling rate) determines the amount of time and range resolution. For example, if a sampling rate of 3GHz is used, each ray moves 0.1 meter per time step, so it is not possible to get better than 0.1 meter resolution. During development, high sampling rates were used to prove out the concepts. For example, in the scenario below, 3GHz sampling rate was used to generate the impulse response. In the first figure, the transmitter is in the left room, the target is in the right room, and the receiver is to the left of the two rooms. The target is moving at 1m/s to the right. The simulation is performed 4 times, each 0.25 seconds apart. Therefore, in the second plot, the target has moved 0.25 meters to the right, and so the signal has traveled 0.5 meter further than in the first. We see that the third nonzero tap, corresponding to the reflection off the target, moves 5 taps to the right in each plot. With a resolution of 0.1 meters per time step, this is exactly what we expect.
 
+\pagebreak
+
 \begin{figure}
-\caption{stuff}
+\caption{Ray tracing the channel with a transmitter, receiver, target, and walls}
 \centering
-\includegraphics[width=400pt]{sim/simulation.png}  
-\label{fig:stuff}
+\includegraphics[width=400pt]{sim/simulation.png}  \\
+\label{fig:Ray Tracing Channel}
 \end{figure}
 
-
 \begin{figure}
-\caption{stuff2}
+\caption{$|h_l[m]|$ at t=[0, 0.25, 0.5, 0.75] seconds when sampling at 3GHz. Target moving 1 m/s to the right. }
 \centering
 \includegraphics[width=400pt]{sim/impulse_response_taps.png}  
-\label{fig:stuff2}
+\label{fig:Impulse Response}
 \end{figure}
-
 
 
 For the purposes of using 802.11g transmissions, we are assuming that we are only capable of sampling at the rate of the bandwidth, 20Mhz. At this rate, each ray travels at $\frac{3*10^8}{20*10^6} = 15$ meters per time step, so this is the limit of resolution possible. If a higher sampling rate were used, it is possible to increase the time and therefore range resolution.
