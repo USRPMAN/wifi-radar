@@ -47,7 +47,7 @@ typically is a communication system waveform that is less than ideal for target 
 poses the additional challenge that the multipath environment is extremely dense indoors, but has the
 significant benefit that 802.11 devices are extremely widespread and commonplace.
 
-The basic, first level construct in typical modern radar systems is a range-Doppler map – a 2D plot of
+The basic, first level construct in typical modern radar systems is a range-Doppler map -- a 2D plot of
 signal power as a function of time delay and received Doppler shift. From this, high power level spots in
 this map can be inferred to be targets at a specific range and range-rate, and targets that repeatedly
 appear in these maps over time can be tracked. This project aims to form range-Doppler maps from
@@ -93,15 +93,15 @@ where for signal path $k$, $\beta_k$ is the gain, $\theta_k$ is the phase for a 
 
 As an impulse is transmitted, the signal is transmitted in all directions with equal strength. This is modeled by a number of discrete rays with a corresponding cone width. At each time step in the simulation, each ray moves in its current direction, and its width increases. Calculation of intersection with walls is only performed on the center line segment of each ray, so a large number of rays may be needed to keep the simulation accurate. 
 
-In implementation, it was found to be easier to model each ray as a triangle instead of a cone, and time step of a ray as a section of the triangle (a trapezoid) rather than as a section cone. This was due to the need to calculate intersections with walls and the receiver along with the fact that these calculations are easier with lines that with curves. The triangle representing each ray has one point at the transmitter and two points each $r(t)$ from the transmitter with an angle of $360/N_{rays}$ degrees between them. The size of the outside edge of the triangle, called the cone width $D_{cone}$ can be found using the law of cosines
+In implementation, it was found to be easier to model each ray as a triangle instead of a cone, and time step of a ray as a section of the triangle (a trapezoid) rather than as a section cone. This was due to the need to calculate intersections with walls and the receiver along with the fact that these calculations are easier with lines that with curves. The triangle representing each ray has one point at the transmitter and two points each $r(t)$ from the transmitter with an angle of $2 \pi/N_{rays}$ degrees between them. The size of the outside edge of the triangle, called the cone width $D_{cone}$ can be found using the law of cosines
 
 \begin{align*}
-D_{cone}(t)^2 &= r^2 + r^2 - 2(r)(r)cos(\frac{360}{N_{rays}}) \\
-              &= 2r^2(1 - cos(\frac{360}{N_{rays}})) \\
-D_{cone}(t) &= \sqrt{2r^2(1 - cos(\frac{360}{N_{rays}}))}
+D_{cone}(t)^2 &= r^2 + r^2 - 2(r)(r)cos(\frac{2 \pi}{N_{rays}}) \\
+              &= 2r^2(1 - cos(\frac{2 \pi}{N_{rays}})) \\
+D_{cone}(t) &= \sqrt{2r^2(1 - cos(\frac{2 \pi}{N_{rays}}))}
 \end{align*}
 
-To simplify the calculations, the environment is assumed to be two dimensional, and the effects of floords and ceilings are neglected. Walls are modeled as reflecting, transmitting, and absorbing some portion of the energy. The angles of transmission and reflection are function of the dialectric properties of the materials, but for simplicity the model in \cite{Holt} assumes the transmitted portion of a signal does not change direction, and the reflected portion of a signal travels at the angle corresponding to the angle of incidence with the wall. In both the cases of transmission and reflecting, the signal is attenuated. This study used the same model as \cite{Holt} where the gain of a ray descreases linearly with distance and is multiplied by a constant factor for traveling through walls.
+To simplify the calculations, the environment is assumed to be two dimensional, and the effects of floors and ceilings are neglected. Walls are modeled as reflecting, transmitting, and absorbing some portion of the energy. The angles of transmission and reflection are function of the dialectric properties of the materials, but for simplicity the model in \cite{Holt} assumes the transmitted portion of a signal does not change direction, and the reflected portion of a signal travels at the angle corresponding to the angle of incidence with the wall. In both the cases of transmission and reflecting, the signal is attenuated. This study used the same model as \cite{Holt} where the gain of a ray decreases linearly with distance and is multiplied by a constant factor for traveling through walls.
 
 \begin{align*}
  \beta_k = \frac{A}{r(t)} \prod_m a_{km} 
@@ -109,7 +109,7 @@ To simplify the calculations, the environment is assumed to be two dimensional, 
 
 where $A$ is the gain at a fixed distance from the transmitter, $r(t)$ is the distance traveled by the signal at time $t$, and $a_{km}$ is the gain coefficient for transmission or reflection from walls. Therefore, the simulation must keep track of the attenuation from walls for each ray. Additionally, when a signal reflects off a wall, its phase is shifted by $\pi$ radians. The simulation must also keep track of this phase difference, which will be discussed in more detail later.
 
-At the beginning of a simulation, $N_{rays}$ rays are created at the transmitter. At each time step, the simulation calculates where each ray would advance to in this time period. It next checks whether the trapezoid over which each ray covers in this time step contains the receiver. If it does, the tap in the impulse response corresponding to the current time step is updated. In addition to the gain and time offset, the phase also needs to be captured. It is initially confusing to consider the phase of an impulse response, but for the moment we must consider the phase of a sinusoid at the carrier frequency arriving at time $t$. The impulse response for tap $m$ where $t=m*f_{sampling}$ is set to 
+At the beginning of a simulation, $N_{rays}$ rays are created at the transmitter. At each time step, the simulation calculates where each ray would advance to in this time period. It next checks whether the trapezoid over which each ray covers in this time step contains the receiver. If it does, the tap in the impulse response corresponding to the current time step is updated. In addition to the gain and time offset, the phase also needs to be captured. It is initially confusing to consider the phase of an impulse response, but for the moment we must consider the phase of a sinusoid at the carrier frequency arriving at time $t$. The impulse response for tap $l$ is set to 
 
 \begin{align*}
 \beta_{k} e^{-j \theta_k}
