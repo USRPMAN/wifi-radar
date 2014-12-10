@@ -12,6 +12,7 @@ ip.addOptional('num_rays', 1000);
 ip.addOptional('wall_pass_gain', 0.5);
 ip.addOptional('wall_refl_gain', 0.7);
 ip.addOptional('gain_prune_cutoff', 0.001);
+ip.addOptional('num_target_sides', 4);
 ip.addOptional('fc', 2.4e9);
 ip.addOptional('plot', 0);
 ip.parse(varargin{:})
@@ -20,7 +21,7 @@ args = ip.Results;
 ray_angles = 0:360/args.num_rays:360-1e-9;
 
 target_walls = generate_target_walls(target_position, ...
-    'num_sides', 4);
+    'num_sides', args.num_target_sides);
 walls(end+1:end+size(target_walls, 1), :) = target_walls;
 
 % rays: [x, y, ray_angle, tx_coef, num_reflections]
@@ -35,6 +36,8 @@ time_step = 1 / sample_freq;
 
 if args.plot
     figure()
+    
+    filename = 'simulation.gif';
 end
 
 impulse_response = zeros(args.num_iterations, 1);
@@ -138,7 +141,7 @@ for iteration=1:args.num_iterations % later could change to while loop
     
     if args.plot
         clf;
-        subplot(1,2,1)
+        subplot(1,1,1)
 
         hold on
         plot(Rx(1), Rx(2), 'x');
@@ -151,10 +154,20 @@ for iteration=1:args.num_iterations % later could change to while loop
         scatter(rays(:, 1), rays(:, 2));
         axis([-10, 10, -10, 10]);
         hold off
+        
+        
 
-        subplot(1,2,2)
-        plot(1:args.num_iterations, impulse_response);
+        %subplot(1,2,2)
+        %plot(1:args.num_iterations, abs(impulse_response));
         drawnow;
+        frame = getframe(1);
+        im = frame2im(frame);
+        [imind,cm] = rgb2ind(im,256);
+        if iteration == 1
+            imwrite(imind, cm ,filename, 'gif', 'Loopcount', inf);
+        else
+            imwrite(imind, cm, filename, 'gif', 'WriteMode', 'append');
+        end
     end
 end
 
