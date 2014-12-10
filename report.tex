@@ -266,28 +266,29 @@ explain how?
 
 \end{itemize}
 
-\section{Concluding remarks (EXPECTATIONS)}
+\section{Concluding Remarks}
+This study has shown the feasibility of detecting the position and movement of a indoor target using bistatic
+radar techniques. The approach consisted of modeling the indoor channel using ray tracing, being sure to 
+model changes in propagation time and phase due to a target moving. After convolving a simulated 802.11g
+OFDM signal with the simulated time varing impulse response, the received signal is generated. The received
+signal is correlated with delay and Doppler shifted versions of the original signal, and combinations that correlate
+strongly indicate the range and speed of an object. In single, low noise scenarios the methodology has shown
+to be sound and could lead to a practical solution.
 
-\begin{itemize}
+Previous studies into passive bistatic radar have focused on real systems with measured data and expensive
+acquisition systems. This study adds value in that by simulating the channel with some basic assumptions, there 
+is a rapid and inexpensive way to study the same concepts. Furthermore, parameters such as reflectivity of
+walls can be varied and the impact can be studied. This could be particularly useful for those who want to know
+how to prevent others to perform this kind of analysis on their property.
 
-\item In a few sentences, give a high-level overview of your work and findings (what you learnt).
+There are some limitations in this study, for example that the ray tracing makes some simplifying assumptions, 
+such as that floors and ceilings are neglected. There is also some further work in academia with respect to bistatic
+radar that could improve results, including how to reduce the inteference from very strong direct signal. Future work
+should consider these techniques as well and whether they can improve results. In addition, with multiple receivers
+in separate locations, it is possible that trilateration, as is used in GPS, could be used to piece together multiple
+range-Doppler maps. This analysis would be necessary to build a complete localization solution.
 
-\item Highlight and explain what you think are the
-strong points of your work and why. This could include: interesting
-insights, illuminating simulations, or proof
-techniques.
 
-\item Explain what you think is less than
-satisfactory in this work. This could include: limitations of the
-modeling assumptions, sensitivity of the conclusions to uncertainty in
-parts of the available information, computational intractability of
-verification through experiments/simulations, etc.
-
-\item How does this work personally
-inspire you to think beyond this work? What are your recommendations
-for future research directions that you would like to see pursued?
-
-\end{itemize}
 
 \begin{thebibliography}{100}
 
