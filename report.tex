@@ -91,8 +91,8 @@ As an impulse is transmitted, the signal is transmitted in all directions with e
 In implementation, it was found to be easier to model each ray as a triangle instead of a cone, and time step of a ray as a section of the triangle (a trapezoid) rather than as a section cone. This was due to the need to calculate intersections with walls and the receiver along with the fact that these calculations are easier with lines that with curves. The triangle representing each ray has one point at the transmitter and two points each $r(t)$ from the transmitter with an angle of $360/N_{rays}$ degrees between them. The size of the outside edge of the triangle, called the cone width $D_{cone}$ can be found using the law of cosines
 
 \begin{align*}
-D_{cone}(t)^2 &= r^2 + r^2 - 2(r)(r)cos(\frac{360}{N_{rays}})
-              &= 2r^2(1 - cos(\frac{360}{N_{rays}}))
+D_{cone}(t)^2 &= r^2 + r^2 - 2(r)(r)cos(\frac{360}{N_{rays}}) \\
+              &= 2r^2(1 - cos(\frac{360}{N_{rays}})) \\
 D_{cone}(t) &= \sqrt{2r^2(1 - cos(\frac{360}{N_{rays}}))}
 \end{align*}
 
@@ -104,15 +104,31 @@ where $A$ is the gain at a fixed distance from the transmitter, $r(t)$ is the di
 
 At the beginning of a simulation, $N_{rays}$ rays are created at the transmitter. At each time step, the simulation calculates where each ray would advance to in this time period. It next checks whether the trapezoid over which each ray covers in this time step contains the receiver. If it does, the tap in the impulse response corresponding to the current time step is updated. In addition to the gain and time offset, the phase also needs to be captured. It is initially confusing to consider the phase of an impulse response, but for the moment we must consider the phase of a sinusoid at the carrier frequency arriving at time $t$. The impulse response for tap $m$ where $t=m*f_{sampling}$ is set to 
 
-$\beta_{k} e^{-j \theta_k}$ 
+\begin{align*}
+\beta_{k} e^{-j \theta_k}
+\end{align*}
 
 where $\theta_k=\frac{2 \pi f_c \tau_k}{c} + l_k \pi$
 and $l_k$ represents the number of wall reflections, accounting for the phase shift that occurs in this case. Keeping track of the phase is critical in order for Doppler shifted versions of the signal to correlate.
 
 The selection of time step sizes (corresponding to sampling rate) determines the amount of time and range resolution. For example, if a sampling rate of 3GHz is used, each ray moves 0.1 meter per time step, so it is not possible to get better than 0.1 meter resolution. During development, high sampling rates were used to prove out the concepts. For example, in the scenario below, 3GHz sampling rate was used to generate the impulse response. In the first figure, the transmitter is in the left room, the target is in the right room, and the receiver is to the left of the two rooms. The target is moving at 1m/s to the right. The simulation is performed 4 times, each 0.25 seconds apart. Therefore, in the second plot, the target has moved 0.25 meters to the right, and so the signal has traveled 0.5 meter further than in the first. We see that the third nonzero tap, corresponding to the reflection off the target, moves 5 taps to the right in each plot. With a resolution of 0.1 meters per time step, this is exactly what we expect.
 
-\includegraphics[width=400px]{sim/simulation_keep.gif}
-\includegraphics[width=400px]{sim/impulse_response_taps.png}
+\begin{figure}
+\caption{stuff}
+\centering
+\includegraphics[width=400px]{sim/simulation.png}  
+\label{fig:stuff}
+\end{figure}
+
+
+\begin{figure}
+\caption{stuff2}
+\centering
+\includegraphics[width=400px]{sim/impulse_response_taps.png}  
+\label{fig:stuff2}
+\end{figure}
+
+
 
 For the purposes of using 802.11g transmissions, we are assuming that we are only capable of sampling at the rate of the bandwidth, 20Mhz. At this rate, each ray travels at $\frac{3*10^8}{20*10^6} = 15$ meters per time step, so this is the limit of resolution possible. If a higher sampling rate were used, it is possible to increase the time and therefore range resolution.
 
@@ -151,16 +167,16 @@ $X = B[\Lambda_{-P}S_{ref} \cdots \Lambda_{-1}S_{ref} \hspace{5 mm} S_{ref} \hsp
 
 where $B$ is the following permutation matrix
 
-$B = \left \{b_{ij} \right \}
+$B = \left \{b_{ij} \right \} $
 
 $\Lambda_p = 
 	\begin{bmatrix}
 	 1			&		0				&		\cdots		&		0 \\
 	 0			&		\exp{j2\pi p}	&		\cdots		&		0 \\
 	 \vdots 	&		\vdots			&		\ddots		&		\vdots \\
-	 0			&		0				&		\cdots		&		\exp{j2\pi p(N + R - 1)
+	 0			&		0				&		\cdots		&		\exp{j2\pi p(N + R - 1)}
 	\end{bmatrix}
-
+$
 TODO
 
 \section{Main Results (EXPECTATIONS)}
