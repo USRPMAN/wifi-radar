@@ -115,9 +115,32 @@ According to \cite{Colone2012}, the 2D cross-correlation can be approximated by
 
 $ C[l, p] = |\sum\limits_{m=0}^{M-1}\exp{-j2\pi pi_m/N_{int}}\chi^{(m)}[l]|^2 $
 
-with $M$ number of pulses in this CPI, $i_m$ the time index of the irst sample of $m$th pulse, and $\chi^{(m)}[l]$ the $l$th sample of the cross-correlation function in the time (range) direction for the $m$th pulse. This time cross correlation is calculated with the MATLAB xcorr function, separating OFDM pulses out by start time index and correlating the observed and reference signals over identical indices. So we have a cross-correlation of each pulse with each observed vector at the receiver; these are trimmed such that the first time index corresponds to a range of 0 meters and the last time index corresponds to the length of an 802.11g OFDM pulse (4 microseconds, 1200 meters).
+with $M$ number of pulses in this CPI, $i_m$ the time index of the irst sample of $m$th pulse, and $\chi^{(m)}[l]$ the $l$th sample of the cross-correlation function in the time (range) direction for the $m$th pulse. This time cross correlation is calculated with the MATLAB xcorr function, separating OFDM pulses out by start time index and correlating the observed and reference signals over identical indices. So we have a cross-correlation of each pulse with each observed vector at the receiver; these are trimmed such that the first time index corresponds to a range of 0 meters and the last time index corresponds to the length of an 802.11g OFDM pulse (4 microseconds, 1200 meters when multiplied by the propagation speed of light).
 
 Next we choose our number of Doppler bins by the maximum velocity we wish to detect. We used 128 for this simulation, which gives a maximum absolute value of velocity of 8 m/s, again assuming integration time of 1s. Shorter integration times yield less fine velocity grading but higher max/min detectable velocity while keeping number of bins constant. The correlation in the velocity direction is computed explicitly in our code as written in the above approximation.
+
+\subsection{Suitability of 802.11g-spec OFDM Waveforms for Localization}
+Radar range resolution in the best case can be estimated from the autocorrelation function of the transmitted pulse. A pulse reflected by a point scatterer will be heard by the receiver and correlated with the reference pulse as described above. In a conventional radar system, the ideal pulse would be an impulse; the cross correlation of the reference impulse and received echo would again be an impulse and the range resolution is infinite or extremely fine. In practice, an often used pulse is a linear frequency modulated (LFM) chirp over some bandwidth, since the 3dB width of the autocorrelation function over time of the LFM chirp is inversely proportional to its bandwidth -- roughly $\delta R = c / BW$ (TODO: Cite radar book). An additional important quantity is the peak-to-sidelobe ratio (PSR), since if the ratio is high, a single target could produce multiple returns with its real return at the peak and later returns at peak-PSR.
+
+One difficulty in using OFDM waveforms for localization is their relatively poor autocorrelation properties, as shown by figure~\ref{fig:autocorr}. This was taken over the entire 1 second of simulated data we used and shows a PSR of around 14$dB$ over the first two delay taps. This will have the effect of spreading the target out over 5 delay bins (75 $m$) with a peak in the middle approximately 14dB higher before noise contributions. If this peak can be identified then the range resolution is 15 $m$, as estimated by the bandwidth criterion given above. 
+
+\begin{figure}
+	\caption{Autocorrelation function of 1 second of simulated WiFi data.}
+	\centering
+	\includegraphics[width=0.5]{figures/autocorr.png}
+	\label{fig:autocorr}
+\end{figure}
+
+Additionally, there is a range ambiguity that appears at 3.2 $\mu s$, corresponding to insertion of the 0.8 $\mu s$ guard interval in 802.11g OFDM pulses. This peak is approximately 13 $dB$ down, agreeing well with \cite{Colone2012}. This would present a significant problem; however, as shown in this paper, there exist reliable methods of correcting the pulse using windowing techniques. These techniques were not explored in this project, so the effect of the extra peak will be seen in our range-Doppler maps as a bright spot downrange.
+
+Velocity or Doppler resolution is limited mainly by the integration time and has very nice autocorrelation properties over frequency, as shown in figure~\ref{fig:autocorrdopp}.
+
+\begin{figure}
+	\caption{Autocorrelation function of WiFi data over Doppler shift dimension.}
+	\centering
+	\includegraphics[width=0.5]{figures/autocorrdopp.png}
+	\label{fig:autocorrdopp}
+\end{figure}
 
 \subsection{Extensive Cancellation Algorithm - Batches}
 
