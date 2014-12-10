@@ -123,16 +123,17 @@ The selection of time step sizes (corresponding to sampling rate) determines the
 \end{figure}
 
 \begin{figure}
-\caption{$|h_l[m]|$ at t=[0, 0.25, 0.5, 0.75] seconds when sampling at 3GHz. Target moving 1 m/s to the right. }
+\caption{$|h_l[m]|$ at m corresponding to t=[0, 0.25, 0.5, 0.75] seconds when sampling at 3GHz. Target moving 1 m/s to the right. }
 \centering
 \includegraphics[width=400pt]{sim/impulse_response_taps.png}  
 \label{fig:Impulse Response}
 \end{figure}
 
-
-For the purposes of using 802.11g transmissions, we are assuming that we are only capable of sampling at the rate of the bandwidth, 20Mhz. At this rate, each ray travels at $\frac{3*10^8}{20*10^6} = 15$ meters per time step, so this is the limit of resolution possible. If a higher sampling rate were used, it is possible to increase the time and therefore range resolution.
+For the purposes of using 802.11g transmissions, we are assuming that we are only capable of sampling at the rate of the bandwidth, 20Mhz. At this rate, each ray travels at $\frac{3*10^8}{20*10^6} = 15$ meters per time step, so this is the limit of resolution possible. If a higher sampling rate were used, it would be possible to increase the time and therefore range resolution.
 
 \subsection{Data Generation}
+To perform the full simulation, the time varing channel impuse response is generated over the course of one second while sampling at 20MHz. To save computation time in simulation, $h_l$ is assumed to be constant for some period and is recomputed again. Experimentally, recomputing $h_l$ every $4 \mu s$, or 800 samples at 20 MHz yielded good results while speeding up computation by a factor of 800. Also, the number of time steps and corresponding taps was limited to save computation time. For example, if most of the information arrives in the first 5 time steps, the simulation may stop after 8 time steps. In this case, sampling $h_l[m]$ at 20Mhz for 1 second, using first 8 taps, holding constant for $4 \mu s$, results in a 25000x8 matrix for $h_l[m]$.
+
 Next, we convolved simulated data obtained from a Simulink model available on the MATLAB file exchange (TODO: ref / cite) with the time varying channel impulse response to obtain an 802.11g OFDM waveform at varying data rates as it might propagate around a room with a moving target. This data was saved and run through an algorithm to calculate a range-Doppler map, which is a 2D range-velocity plot commonly used in radar. Additionally, the extensive cancellation-batches algorithm was used to clean up the raw complex samples input to the range-Doppler map forming algorithm.
 
 \subsection{Range-Doppler Maps and Formation}
