@@ -73,7 +73,7 @@ We will calculate the ambiguity function of the simulated data, given by
 
 Which essentially provides useful information about the suitability of the OFDM WiFi waveform as a
 radar signal, such as range resolution and Doppler resolution. Finally, we will implement range-Doppler
-map forming algorithms as described in [1-4] and explain how these maps would be used to localize
+map forming algorithms as described in \cite{Colone2012} and explain how these maps would be used to localize
 targets.
 
 
@@ -120,16 +120,14 @@ and $l_k$ represents the number of wall reflections, accounting for the phase sh
 
 The selection of time step sizes (corresponding to sampling rate) determines the amount of time and range resolution. For example, if a sampling rate of 3GHz is used, each ray moves 0.1 meter per time step, so it is not possible to get better than 0.1 meter resolution. During development, high sampling rates were used to prove out the concepts. For example, in the scenario below, 3GHz sampling rate was used to generate the impulse response. In the first figure, the transmitter is in the left room, the target is in the right room, and the receiver is to the left of the two rooms. The target is moving at 1m/s to the right. The simulation is performed 4 times, each 0.25 seconds apart. Therefore, in the second plot, the target has moved 0.25 meters to the right, and so the signal has traveled 0.5 meter further than in the first. We see that the third nonzero tap, corresponding to the reflection off the target, moves 5 taps to the right in each plot. With a resolution of 0.1 meters per time step, this is exactly what we expect.
 
-\pagebreak
-
-\begin{figure}
+\begin{figure}[H]
 \caption{Ray tracing the channel with a transmitter, receiver, target, and walls}
 \centering
 \includegraphics[width=400pt]{sim/simulation.png}  \\
 \label{fig:Ray Tracing Channel}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
 \caption{$|h_l[m]|$ at m corresponding to t=[0, 0.25, 0.5, 0.75] seconds when sampling at 3GHz. Target moving 1 m/s to the right. }
 \centering
 \includegraphics[width=400pt]{sim/impulse_response_taps.png}  
@@ -139,15 +137,15 @@ The selection of time step sizes (corresponding to sampling rate) determines the
 For the purposes of using 802.11g transmissions, we are assuming that we are only capable of sampling at the rate of the bandwidth, 20Mhz. At this rate, each ray travels at $\frac{3*10^8}{20*10^6} = 15$ meters per time step, so this is the limit of resolution possible. We will elaborate on range and velocity resolution under the section on 802.11g waveform suitability for localization.
 
 \subsection{Data Generation}
-To perform the full simulation, the time varing channel impuse response is generated over the course of one second while sampling at 20MHz. To save computation time in simulation, $h_l$ is assumed to be constant for some period and is recomputed again. Experimentally, recomputing $h_l$ every $4 \mu s$, or 800 samples at 20 MHz yielded good results while speeding up computation by a factor of 800. Also, the number of time steps and corresponding taps was limited to save computation time. For example, if most of the information arrives in the first 5 time steps, the simulation may stop after 8 time steps. In this case, sampling $h_l[m]$ at 20Mhz for 1 second, using first 8 taps, holding constant for $4 \mu s$, results in a 25000x8 matrix for $h_l[m]$.
+To perform the full simulation, the time varing channel impuse response is generated over the course of one second while sampling at 20MHz. To save computation time in simulation, $h_l$ is assumed to be constant for some period and is recomputed again. Experimentally, recomputing $h_l$ every $40 \mu s$, or 800 samples at 20 MHz yielded good results while speeding up computation by a factor of 800. Also, the number of time steps and corresponding taps was limited to save computation time. For example, if most of the information arrives in the first 5 time steps, the simulation may stop after 8 time steps. In this case, sampling $h_l[m]$ at 20Mhz for 1 second, using first 8 taps, holding constant for $4 \mu s$, results in a 25000x8 matrix for $h_l[m]$.
 
-Next, we convolved simulated data obtained from a Simulink model available on the MATLAB file exchange (TODO: ref / cite) with the time varying channel impulse response to obtain an 802.11g OFDM waveform at varying data rates as it might propagate around a room with a moving target. This data was saved and run through an algorithm to calculate a range-Doppler map, which is a 2D range-velocity plot commonly used in radar. Additionally, the extensive cancellation-batches algorithm was used to clean up the raw complex samples input to the range-Doppler map forming algorithm.
+Next, we convolved simulated data obtained from a Simulink model available on the MATLAB file exchange \cite{Saxena} with the time varying channel impulse response to obtain an 802.11g OFDM waveform at varying data rates as it might propagate around a room with a moving target. This data was saved and run through an algorithm to calculate a range-Doppler map, which is a 2D range-velocity plot commonly used in radar. Additionally, the extensive cancellation-batches algorithm was used to clean up the raw complex samples input to the range-Doppler map forming algorithm.
 
 \subsection{Range-Doppler Maps and Formation}
 
 A range-Doppler map is the basis of most modern radar technology. A bistatic radar system measures range to a target by listening for both the "direct path" signal from the transmitter as well as the multipath echoes from targets in the environment, and then finding the time difference between these copies of the transmitted signal. In addition to simply finding the range, the system must discriminate these echoes by their Doppler shift, or implied velocity along the lines of sight between the transmitter to target and target to receiver. This discrimination by velocity enables the radar system to separate stationary items in the environment, such as ground, walls, and buildings which comprise the majority of return power, from targets of interest, which must be moving at some minimum velocity for the system to be effective.
 
-Range Doppler maps are formed in a passive system as follows. It is essentially a matched filter in both range and velocity directions calculated by cross-correlating the aforementioned direct path signal $s_ref$ with the multipath echoes $s_surv$. Time indices that correlate well will have a large value of the cross correlation function in the range direction, which indicates the presence of a reflection at the distance corresponding to the time it takes light to propagate that distance. Frequency indices that correlate well with frequency shifted versions of the reference signal indicate the presence of Doppler shift, and targets at a given range and velocity should then show up as bright spots in the 2D cross-correlation map.
+Range Doppler maps are formed in a passive system as follows. It is essentially a matched filter in both range and velocity directions calculated by cross-correlating the aforementioned direct path signal $s_{ref}$ with the multipath echoes $s_{surv}$. Time indices that correlate well will have a large value of the cross correlation function in the range direction, which indicates the presence of a reflection at the distance corresponding to the time it takes light to propagate that distance. Frequency indices that correlate well with frequency shifted versions of the reference signal indicate the presence of Doppler shift, and targets at a given range and velocity should then show up as bright spots in the 2D cross-correlation map.
 
 The 2D cross-correlation is given by
 
@@ -160,7 +158,7 @@ where $l$ is the time delay bin which specifies range of echoes from that cell, 
 According to \cite{Colone2012}, the 2D cross-correlation can be approximated by
 
 \begin{equation} \label{eq:2dccapprox}
- C[l, p] = |\sum\limits_{m=0}^{M-1}\exp{-j2\pi pi_m/N_{int}}\chi^{(m)}[l]|^2 
+ C[l, p] = |\sum\limits_{m=0}^{M-1}e^{-j2\pi pi_m/N_{int}}\chi^{(m)}[l]|^2 
 \end{equation}
 
 with $M$ number of pulses in this CPI, $i_m$ the time index of the irst sample of $m$th pulse, and $\chi^{(m)}[l]$ the $l$th sample of the cross-correlation function in the time (range) direction for the $m$th pulse. This time cross correlation is calculated with the MATLAB xcorr function, separating OFDM pulses out by start time index and correlating the observed and reference signals over identical indices. So we have a cross-correlation of each pulse with each observed vector at the receiver; these are trimmed such that the first time index corresponds to a range of 0 meters and the last time index corresponds to the length of an 802.11g OFDM pulse (4 microseconds, 1200 meters when multiplied by the propagation speed of light).
@@ -168,7 +166,7 @@ with $M$ number of pulses in this CPI, $i_m$ the time index of the irst sample o
 Next we choose our number of Doppler bins by the maximum velocity we wish to detect. We used 128 for this simulation, which gives a maximum absolute value of velocity of 8 m/s, again assuming integration time of 1s. Shorter integration times yield less fine velocity grading but higher max/min detectable velocity while keeping number of bins constant. The correlation in the velocity direction is computed explicitly in our code as written in the above approximation.
 
 \subsection{Suitability of 802.11g-spec OFDM Waveforms for Localization}
-Radar range resolution in the best case can be estimated from the autocorrelation function of the transmitted pulse. A pulse reflected by a point scatterer will be heard by the receiver and correlated with the reference pulse as described above. In a conventional radar system, the ideal pulse would be an impulse; the cross correlation of the reference impulse and received echo would again be an impulse and the range resolution is infinite or extremely fine. In practice, an often used pulse is a linear frequency modulated (LFM) chirp over some bandwidth, since the 3dB width of the autocorrelation function over time of the LFM chirp is inversely proportional to its bandwidth -- roughly $\delta R = c / BW$ (TODO: Cite radar book). An additional important quantity is the peak-to-sidelobe ratio (PSR), since if the ratio is high, a single target could produce multiple returns with its real return at the peak and later returns at peak-PSR.
+Radar range resolution in the best case can be estimated from the autocorrelation function of the transmitted pulse. A pulse reflected by a point scatterer will be heard by the receiver and correlated with the reference pulse as described above. In a conventional radar system, the ideal pulse would be an impulse; the cross correlation of the reference impulse and received echo would again be an impulse and the range resolution is infinite or extremely fine. In practice, an often used pulse is a linear frequency modulated (LFM) chirp over some bandwidth, since the 3dB width of the autocorrelation function over time of the LFM chirp is inversely proportional to its bandwidth -- roughly $\delta R = c / BW$ \cite{RadarBook}, and it is possible to send an appreciable amount when spreading the pulse over time. An additional important quantity is the peak-to-sidelobe ratio (PSR), since if the ratio is high, a single target could produce multiple returns with its real return at the peak and later returns at peak-PSR.
 
 One difficulty in using OFDM waveforms for localization is their relatively poor autocorrelation properties, as shown by figure~\ref{fig:autocorr}. This was taken over the entire 1 second of simulated data we used and shows a PSR of around 14$dB$ over the first two delay taps. This will have the effect of spreading the target out over 5 delay bins (75 $m$) with a peak in the middle approximately 14dB higher before noise contributions. If this peak can be identified then the range resolution is 15 $m$, as estimated by the bandwidth criterion given above. 
 
@@ -190,45 +188,14 @@ Velocity or Doppler resolution is limited mainly by the integration time and has
 	\label{fig:autocorrdopp}
 \end{figure}
 
-\subsection{Extensive Cancellation Algorithm - Batches}
-
-The Extensive Cancellation Algorithm for removing direct path, multipath, and clutter echoes in passive radar is presented in \cite{Colone2006}, \cite{Colone2009}, and \cite{Colone2012}. It is essentially a Least-Squares algorithm that assumes clutter is in the nearest $K$ range bins and middle $P$ Doppler bins. The algorithm attempts to solve the problem
-
-\begin{align*}
- \min_{\alpha}(\|s_{obs} - X\alpha\|^2) 
-\end{align*}
-
-Where $s_{obs}$ is the observed signal at the receiver of dimension $N x 1$. This is the "minimum residual signal power" after cancelling the clutter, direct path, and close range ground echoes in the aforementioned $K$ range bins and $P$ Doppler bins. The matrix X is
-
-\begin{align*}
-X = B[\Lambda_{-P}S_{ref} \cdots \Lambda_{-1}S_{ref} \hspace{5 mm} S_{ref} \hspace{5mm} \Lambda_{1}S_{ref} \cdots \Lambda_{P}S_{ref}]
-\end{align*}
-
-where $B$ is the following permutation matrix
-
-\begin{align*}
-B = \left \{b_{ij} \right \} 
-\end{align*}
-
-\begin{align*}
-\Lambda_p = 
-	\begin{bmatrix}
-	 1			&		0				&		\cdots		&		0 \\
-	 0			&		\exp{j2\pi p}	&		\cdots		&		0 \\
-	 \vdots 	&		\vdots			&		\ddots		&		\vdots \\
-	 0			&		0				&		\cdots		&		\exp{j2\pi p(N + R - 1)}
-	\end{bmatrix}
-\end{align*}
-TODO
-
 \section{Simulations}
 \subsection{Simulating Indoor Channel with Multipath Fading}
 The first step to simulate passive radar in an indoor setting is build a model for indoor fading. It is difficult to create a model that perfectly models walls, ceilings, furniture, etc. This project used an approach similar to that described in \cite{Holt}. This project implemented a ray tracing simulation to estimate the impulse response of the channel in an environment with walls and a moving object. 
 
 \subsection{Choosing Scenarios}
-Next, it is necessary to choose some representative scenarios. The first is simply a transmitter, receiver and target on a line with the target moving either toward or away from the receiver, as represented in (TODO: ref). We used both directions to ensure that the Doppler shift of the target was appearing at the correct location.
+Next, it is necessary to choose some representative scenarios. The first is simply a transmitter, receiver and target on a line with the target moving either toward or away from the receiver, as represented in figure ~\ref{fig:sim1}. We used both directions to ensure that the Doppler shift of the target was appearing at the correct location.
 
-The final case is a more realistic scenario with the target and transmitter in a room and the receiver listening from outside. This is expected to more reasonably represent some of the difficulties in such an application, such as multipath from reflections off of walls and reduced received power level due to attenuation. This scenario is shown in (TODO: ref)
+The final case is a more realistic scenario with the target and transmitter in a room and the receiver listening from outside. This is expected to more reasonably represent some of the difficulties in such an application, such as multipath from reflections off of walls and reduced received power level due to attenuation. This scenario is shown in ~\ref{fig:sim2}.
 
 \subsection{Generating Range-Doppler Maps}
 Finally, range-Doppler maps were generated using equation \eqref{eq:2dccapprox}. We will explain how these maps correspond to the simulation scenarios.
@@ -272,8 +239,8 @@ The second scenario as seen in figures ~\ref{fig:sim2} and ~\ref{fig:rdm2} has t
 \begin{figure}[H]
 	\caption{Graphical representation of third simulation scenario.}
 	\centering
-	\includegraphics[width=400pt]{figures/sim2.png}
-	\label{fig:sim2}
+	\includegraphics[width=400pt]{figures/sim3.png}
+	\label{fig:sim3}
 \end{figure}
 
 \begin{figure}[H]
@@ -305,17 +272,16 @@ Previous studies into passive bistatic radar have focused on real systems with m
 acquisition systems. This study adds value in that by simulating the channel with some basic assumptions, there 
 is a rapid and inexpensive way to study the same concepts. Furthermore, parameters such as reflectivity of
 walls can be varied and the impact can be studied. This could be particularly useful for those who want to know
-how to prevent others to perform this kind of analysis on their property.
+how to prevent others from performing this kind of analysis on their property.
 
 There are some limitations in this study, for example that the ray tracing makes some simplifying assumptions, 
-such as that floors and ceilings are neglected. The target in the ray tracing simulation is modeled as a polyhedron, when it should probably just absorb a ray and proportionally reradiate over some angle. There is also some further work in academia with respect to bistatic
-radar that could improve results, including how to reduce the inteference from very strong direct signal. Future work
-should consider these techniques as well and whether they can improve results. In addition, with multiple receivers
+such as that floors and ceilings are neglected. The target in the ray tracing simulation is modeled as a 2D polyhedron, when it should probably just absorb a ray and proportionally reradiate over some angle. This is the reason that the target, receiver and transmitter were always in a line in our results: we were unsure whether the rays would ever bounce back to the receiver given how the ray tracing was implemented, generating the channel response takes a significant amount of time, and we ran into time constraints with the project due date. Reradiating would solve this issue but our simulation gets the idea across anyway. 
+
+There is also some further work in academia with respect to bistatic
+radar that could improve results, including how to reduce the inteference from very strong direct signal. One such algorithm, the Extensive Cancellation Algorithm - Batches (ECA-B) as presented in \cite{Colone2006}, \cite{Colone2009}, and \cite{Colone2012} was implemented as part of this project but did not work as expected and so was left out.In addition, with multiple receivers
 in separate locations, it is possible that trilateration, as is used in GPS, could be used to fully localize a target in 2D or 3D space rather than in just range. This analysis would be necessary to build a complete localization solution.
 
 A major simplifying assumption in this work is the lack of white Gaussian noise in the received signal, an effect we intended to model but left out due to time constraints. The effect of noise would basically be making the target more difficult to distinguish in the range-Doppler maps; instead of being 30 $dB$ above the typical noise floor it might be 10 $dB$ or even less, making it difficult or impossible to detect reliably. 
-
-
 
 \begin{thebibliography}{100}
 
@@ -339,6 +305,8 @@ onAerospace and Electronic Signals, Vol. 48, no.2, pp.1061-1079, Apr. 2012
 \bibitem{Hemple} Hemple, S., “Analysis and Simulation of Wireless ODFM Communications,” M.S. Thesis, Dept. of
 Mathematics and Statistics, San Diego State Univ., San Diego, CA, Apr. 2012
 
+\bibitem{Saxena} Saxena, A. (2012). "802.11g WLAN PHY Model," [Online]. Available: http://www.mathworks.com/matlabcentral/fileexchange/38073-802-11g-wlan-phy-model
+
 \bibitem{Colone2011} Colone, F., “Ambiguity Function Analysis of Wireless LAN Transmissions for Passive Radar,”
 Aerospace and Electronic Systems, IEEE Transactions on Aerospace and Electronic Systems, Vol. 47, No.1,
 pp. 240-264, Jan. 2011
@@ -350,6 +318,8 @@ pp. 240-264, Jan. 2011
 \bibitem{Colone2006} Colone, F.; Cardinali, R.; Lombardo, P., "Cancellation of Clutter and Multipath in Passive Radar Using a Sequential Approach," IEEE Conference on Radar, Apr. 2006
 
 \bibitem "IEEE Standard for Information Technology, Part 11: Wireless LAN Medium Access Control (MAC) and Physical Layer (PHY) specifications" IEEE Std 802.11-2012
+
+\bibitem{RadarBook} M.A. Richards, J.A. Scheer, W.A. Holm, "Principles of Modern Radar: Basic Principles." Raleigh, NC: SciTech Publishing, 2010.
 
 
 \end{thebibliography}
