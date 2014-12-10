@@ -1,13 +1,14 @@
 \documentclass[article,11pt,onecolumn,final]{IEEEtran}
 \usepackage{epsfig,latexsym,amsfonts,amsmath,amssymb,verbatim,cite,mathrsfs}
 \usepackage{graphicx}
+\usepackage{float}
 \usepackage[dvips]{color}
 
 \newtheorem{theorem}{Theorem}
 
 \title{Passive Bistatic Radar using WiFi for Indoor Localization}
 
-\author{\IEEEauthorblockN{Alexander and Ernest (TODO last names)}  \\
+\author{\IEEEauthorblockN{Alexander Tooke and Ernest Carozza}  \\
 \IEEEauthorblockA{Department of Electrical and Computer Engineering\\ 
 Boston University
 }}
@@ -135,7 +136,7 @@ The selection of time step sizes (corresponding to sampling rate) determines the
 \label{fig:Impulse Response}
 \end{figure}
 
-For the purposes of using 802.11g transmissions, we are assuming that we are only capable of sampling at the rate of the bandwidth, 20Mhz. At this rate, each ray travels at $\frac{3*10^8}{20*10^6} = 15$ meters per time step, so this is the limit of resolution possible. If a higher sampling rate were used, it would be possible to increase the time and therefore range resolution.
+For the purposes of using 802.11g transmissions, we are assuming that we are only capable of sampling at the rate of the bandwidth, 20Mhz. At this rate, each ray travels at $\frac{3*10^8}{20*10^6} = 15$ meters per time step, so this is the limit of resolution possible. We will elaborate on range and velocity resolution under the section on 802.11g waveform suitability for localization.
 
 \subsection{Data Generation}
 To perform the full simulation, the time varing channel impuse response is generated over the course of one second while sampling at 20MHz. To save computation time in simulation, $h_l$ is assumed to be constant for some period and is recomputed again. Experimentally, recomputing $h_l$ every $4 \mu s$, or 800 samples at 20 MHz yielded good results while speeding up computation by a factor of 800. Also, the number of time steps and corresponding taps was limited to save computation time. For example, if most of the information arrives in the first 5 time steps, the simulation may stop after 8 time steps. In this case, sampling $h_l[m]$ at 20Mhz for 1 second, using first 8 taps, holding constant for $4 \mu s$, results in a 25000x8 matrix for $h_l[m]$.
@@ -220,27 +221,6 @@ B = \left \{b_{ij} \right \}
 \end{align*}
 TODO
 
-\section{Main Results (EXPECTATIONS)}
-\begin{itemize}
-
-\item Begin with a high-level overview of the approach taken to solve the problem. The goal is to help prepare the reader for the more technical part to follow.
-
-\item Describe the technical approach(s) taken to solve the problem stated above. Use mathematical expressions wherever appropriate. This should be written at a sufficient level of detail so that an interested reader could redo your work.
-
-\item It may be helpful to split this several into separate regions. For instance, if we were considering the uplink channel that we studied in class, I would create sections named Capacity Region, CDMA, TDMA, and Successive Cancellation, rather than discussing all of these in one place. 
-
-\end{itemize} 
-
-\begin{theorem}
-If you have any theorems to discuss, this section is the right place to state them. Clearly indicate where you got the theorem, including both the paper and the theorem number within that paper (e.g.,~\cite[Theorem 2]{Shannon1948}).
-\begin{equation}
-C = \log(1 + \mathsf{SNR}) \label{e:capacity}
-\end{equation}
-\end{theorem}
-\begin{IEEEproof}
-If the theorem only requires a short proof, then give the proof immediately after the theorem. If it requires more space, consider relegating it to an appendix. 
-\end{IEEEproof}
-
 \section{Simulations}
 \subsection{Simulating Indoor Channel with Multipath Fading}
 The first step to simulate passive radar in an indoor setting is build a model for indoor fading. It is difficult to create a model that perfectly models walls, ceilings, furniture, etc. This project used an approach similar to that described in \cite{Holt}. This project implemented a ray tracing simulation to estimate the impulse response of the channel in an environment with walls and a moving object. 
@@ -312,42 +292,6 @@ The second scenario as seen in figures ~\ref{fig:sim2} and ~\ref{fig:rdm2} has t
 
 This scenario has the transmitter and target inside a 40x30 $m^2$ room with its left corner at $[0, 0]$, the transmitter positioned at $[20, 1]$, the target positioned at $[20, 15]$ and moving at $-2 m/s$ in the $y$-direction, and the receiver positioned outside the room at $[20, -5]$. The expected two-way range in this case would be approximately 34 $m$ and would shrink to 30 $m$ after 1 second. Given our velocity spacing per bin, we expect the target to appear in Doppler bin -16 ($-2 / 0.125$). Given the 30 $m$ range, this means the target should appear 2 time delay bins following the direct path signal. Additionally, given the multipath environment, we see a weaker, Doppler-spread echo off of the back wall of the room, which has a 2-way range of an additional 30 $m$ and correspondingly appears 2 time bins later than the first echo.
 
-\section{Simulations (Expectations)} 
-
-\begin{itemize}
-\item Don't be indiscriminate in what
-you are simulating. Think clearly about what you hope to learn or
-illustrate though simulations. Choose the right experiments and the
-right experimental conditions (the parameters). A few well chosen experiments
-are more useful than tons of poorly planned experiments.
-
-\item Clearly describe how you generated the simulations. Refer to the ``equation numbers'' of the key equations used in the simulations, such as~\eqref{e:capacity}.
- How did you choose
-the values of parameters? What are their values? How many
-trials did you run? In other words, the information you
-provide here should be sufficiently detailed to permit a knowledgable
-individual reading your report to reproduce your figures.
-
-\item Provide plots, figures/pictures,
-tables, and/or numerical data. Each item should have a title and a
-caption and should be referenced in the report. The caption should be
-self-contained as far as possible, that is, someone reading your
-report should be able to get a very good idea of the results by just
-reading the caption without having to read the text of the
-report. All axes should be properly
-labeled and the plot should have a legend. Make sure the font size is chosen so that the 
-text is legible from a print out.
-
-\item Discuss your results. What did you learn from the
-simulations? Are the experiments in agreement with any theory? If so,
-explain how? 
-
-\item Be sure to include a copy of the code used to generate your figures when you submit the report.
-
-\item If this is a literature survey, and you were trying to reproduce some of the figures in the paper, clearly indicate which figures and discuss how closely your figures agree with the original figures. If they do not completely match, explain why.
-
-\end{itemize}
-
 \section{Concluding Remarks}
 This study has shown the feasibility of detecting the position and movement of a indoor target using bistatic
 radar techniques. The approach consisted of modeling the indoor channel using ray tracing, being sure to 
@@ -364,11 +308,12 @@ walls can be varied and the impact can be studied. This could be particularly us
 how to prevent others to perform this kind of analysis on their property.
 
 There are some limitations in this study, for example that the ray tracing makes some simplifying assumptions, 
-such as that floors and ceilings are neglected. There is also some further work in academia with respect to bistatic
+such as that floors and ceilings are neglected. The target in the ray tracing simulation is modeled as a polyhedron, when it should probably just absorb a ray and proportionally reradiate over some angle. There is also some further work in academia with respect to bistatic
 radar that could improve results, including how to reduce the inteference from very strong direct signal. Future work
 should consider these techniques as well and whether they can improve results. In addition, with multiple receivers
-in separate locations, it is possible that trilateration, as is used in GPS, could be used to piece together multiple
-range-Doppler maps. This analysis would be necessary to build a complete localization solution.
+in separate locations, it is possible that trilateration, as is used in GPS, could be used to fully localize a target in 2D or 3D space rather than in just range. This analysis would be necessary to build a complete localization solution.
+
+A major simplifying assumption in this work is the lack of white Gaussian noise in the received signal, an effect we intended to model but left out due to time constraints. The effect of noise would basically be making the target more difficult to distinguish in the range-Doppler maps; instead of being 30 $dB$ above the typical noise floor it might be 10 $dB$ or even less, making it difficult or impossible to detect reliably. 
 
 
 
