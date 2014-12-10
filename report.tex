@@ -86,7 +86,9 @@ $ h(t) = \sum_{k=0}^{n} \beta_k e^{-j \theta_k} p(t - \tau_k) $
 
 where for signal path $k$, $\beta_k$ is the gain, $\theta_k$ is the phase for a sinusoid with a certain frequency, and $\tau_k$ is the propagation time. This is difficult to model exactly, so instead a sampled, discrete impulse response $h_l[m]$ is estimated using this simulation. 
 
-As an impulse is transmitted, the signal is transmitted in all directions with equal strength. This is modeled by a number of discrete rays with a corresponding cone width. The width of each ray increases with time, so a large number of rays may be needed to keep rays small. In implementation, it was found to be easier to model each ray as a triangle, and time step of a ray as a section of the triangle (a trapezoid) rather than as a section cone with curves. This was due to the need to calculate intersections with walls and the receiver. The triangle has one point at the transmitter and two points each $r(t)$ from the transmitter with an angle of $360/N_{rays}$ degrees between them. The size of the outside edge of the triangle, called the cone width $D_{cone}$ can be found using the law of cosines
+As an impulse is transmitted, the signal is transmitted in all directions with equal strength. This is modeled by a number of discrete rays with a corresponding cone width. At each time step in the simulation, each ray moves in its current direction, and its width increases. Calculation of intersection with walls is only performed on the center line segment of each ray, so a large number of rays may be needed to keep the simulation accurate. 
+
+In implementation, it was found to be easier to model each ray as a triangle instead of a cone, and time step of a ray as a section of the triangle (a trapezoid) rather than as a section cone. This was due to the need to calculate intersections with walls and the receiver along with the fact that these calculations are easier with lines that with curves. The triangle representing each ray has one point at the transmitter and two points each $r(t)$ from the transmitter with an angle of $360/N_{rays}$ degrees between them. The size of the outside edge of the triangle, called the cone width $D_{cone}$ can be found using the law of cosines
 
 \begin{align*}
 D_{cone}(t)^2 &= r^2 + r^2 - 2(r)(r)cos(\frac{360}{N_{rays}})
@@ -94,7 +96,20 @@ D_{cone}(t)^2 &= r^2 + r^2 - 2(r)(r)cos(\frac{360}{N_{rays}})
 D_{cone}(t) &= \sqrt{2r^2(1 - cos(\frac{360}{N_{rays}}))}
 \end{align*}
 
-To simplify the calculations, the environment is assumed to be two dimensional, and the effects of walls and ceilings are neglected. Walls are modeled as reflecting, transmitting, and absorbing some portion of the energy.
+To simplify the calculations, the environment is assumed to be two dimensional, and the effects of floords and ceilings are neglected. Walls are modeled as reflecting, transmitting, and absorbing some portion of the energy. The angles of transmission and reflection are function of the dialectric properties of the materials, but for simplicity the model in \cite{Holt} assumes the transmitted portion of a signal does not change direction, and the reflected portion of a signal travels at the angle corresponding to the angle of incidence with the wall. In both the cases of transmission and reflecting, the signal is attenuated. This study used the same model as \cite{Holt} where the gain of a ray descreases linearly with distance and is multiplied by a constant factor for traveling through walls.
+
+$ \beta_k = \frac{A}{r(t)} \prod_m a_{km} $
+
+where $A$ is the gain at a fixed distance from the transmitter, $r(t)$ is the distance traveled by the signal at time $t$, and $a_{km}$ is the gain coefficient for transmission or reflection from walls. Therefore, the simulation must keep track of the attenuation from walls for each ray. Additionally, when a signal reflects off a wall, its phase is shifted by $\pi$ radians. The simulation must also keep track of this phase difference, which will be discussed in more detail later.
+
+At the beginning of a simulation, $N_{rays}$ rays are created at the transmitter. At each time step, the simulation calculates where each ray would advance to in this time period. It next checks whether the trapezoid over which each ray covers in this time step contains the receiver. If it does, the tap in the impulse response corresponding to the current time step is updated. In addition to the gain and time offset, the phase also needs to be captured. It is initially confusing to consider the phase of an impulse response, but for the moment we must consider the phase of a sinusoid at the carrier frequency arriving at time $t$. The impulse response for tap $m$ where $t=m*f_{sampling}$ is set to 
+
+$\beta_{k} e^{-j \theta_k}$ 
+
+where $\theta_k=\frac{2 \pi f_c \tau_k}{c} + l_k \pi$
+and $l_k$ represents the number of wall reflections, accounting for the phase shift that occurs in this case. Keeping track of the phase is critical in order for Doppler shifted versions of the signal to correlate.
+
+The selection of time step sizes (corresponding to sampling rate) determines the amount of time and range resolution. For example, if a sampling rate of 300MHz is used, each ray moves 1 meter per time step, so it is not possible to get better than 1 meter resolution. During development, high sampling rates were used to prove out the concepts. For example, 
 
 \subsection{Data Generation}
 Next, we convolved simulated data obtained from a Simulink model available on the MATLAB file exchange (TODO: ref / cite) with the time varying channel impulse response to obtain an 802.11g OFDM waveform at varying data rates as it might propagate around a room with a moving target. This data was saved and run through an algorithm to calculate a range-Doppler map, which is a 2D range-velocity plot commonly used in radar. Additionally, the extensive cancellation-batches algorithm was used to clean up the raw complex samples input to the range-Doppler map forming algorithm.
