@@ -82,7 +82,9 @@ The general approach of a radar system is to transmit a known signal then test h
 
 To start, we implemented a ray tracing simulation that calculates the channel impulse response for each pulse time. The approach taken in this study follows that in \cite{Holt}. The goal is to model the impulse response
 
-$ h(t) = \sum_{k=0}^{n} \beta_k e^{-j \theta_k} p(t - \tau_k) $
+\begin{align*}
+ h(t) = \sum_{k=0}^{n} \beta_k e^{-j \theta_k} p(t - \tau_k) 
+\end{align*}
 
 where for signal path $k$, $\beta_k$ is the gain, $\theta_k$ is the phase for a sinusoid with a certain frequency, and $\tau_k$ is the propagation time. This is difficult to model exactly, so instead a sampled, discrete impulse response $h_l[m]$ is estimated using this simulation. 
 
@@ -98,7 +100,9 @@ D_{cone}(t) &= \sqrt{2r^2(1 - cos(\frac{360}{N_{rays}}))}
 
 To simplify the calculations, the environment is assumed to be two dimensional, and the effects of floords and ceilings are neglected. Walls are modeled as reflecting, transmitting, and absorbing some portion of the energy. The angles of transmission and reflection are function of the dialectric properties of the materials, but for simplicity the model in \cite{Holt} assumes the transmitted portion of a signal does not change direction, and the reflected portion of a signal travels at the angle corresponding to the angle of incidence with the wall. In both the cases of transmission and reflecting, the signal is attenuated. This study used the same model as \cite{Holt} where the gain of a ray descreases linearly with distance and is multiplied by a constant factor for traveling through walls.
 
-$ \beta_k = \frac{A}{r(t)} \prod_m a_{km} $
+\begin{align*}
+ \beta_k = \frac{A}{r(t)} \prod_m a_{km} 
+\end{align*}
 
 where $A$ is the gain at a fixed distance from the transmitter, $r(t)$ is the distance traveled by the signal at time $t$, and $a_{km}$ is the gain coefficient for transmission or reflection from walls. Therefore, the simulation must keep track of the attenuation from walls for each ray. Additionally, when a signal reflects off a wall, its phase is shifted by $\pi$ radians. The simulation must also keep track of this phase difference, which will be discussed in more detail later.
 
@@ -143,13 +147,17 @@ Range Doppler maps are formed in a passive system as follows. It is essentially 
 
 The 2D cross-correlation is given by
 
-$ C[l, p] = | \sum\limits_{i=0}^{N_{int}-1} s_{surv}[i]*s_{ref}^{*}[i - l]*e^{-j2\pi pi/N_{int}}|^2 $
+\begin{equation}
+ C[l, p] = | \sum\limits_{i=0}^{N_{int}-1} s_{surv}[i]*s_{ref}^{*}[i - l]*e^{-j2\pi pi/N_{int}}|^2 
+\end{equation}
 
 where $l$ is the time delay bin which specifies range of echoes from that cell, $p$ is the Doppler bin which specifies Doppler shift frequency of that cell. $N_{int}$ is total number of raw samples in $s_{surv}$. Time delay bin and Doppler bin can both be converted to real quantities (meters and meters/second) as follows. The difference between the direct path distance and target bistatic range (known as the differential bistatic range) is $\delta R[l] = c*l*T_s$, where $T_s$ is equal to $1/f_s$, the A/D sample frequency. The Doppler bin p represents a Doppler frequency shift of $f_D[p] = p/(N_{int}T_s)$, which is converted into a Doppler velocity of $\delta v[p] = \lambda f_D[p]$. The quantity $N_{int}T_s$ is the CPI, or coherent processing interval, which determines Doppler resolution of the system as well as SNR gain, and for WiFi radar in our application is on the order of 1 second. At 2.4GHz this gives a Doppler resolution of 0.125 m/s.
 
 According to \cite{Colone2012}, the 2D cross-correlation can be approximated by
 
-$ C[l, p] = |\sum\limits_{m=0}^{M-1}\exp{-j2\pi pi_m/N_{int}}\chi^{(m)}[l]|^2 $
+\begin{equation} \label{eq:2dccapprox}
+ C[l, p] = |\sum\limits_{m=0}^{M-1}\exp{-j2\pi pi_m/N_{int}}\chi^{(m)}[l]|^2 
+\end{equation}
 
 with $M$ number of pulses in this CPI, $i_m$ the time index of the irst sample of $m$th pulse, and $\chi^{(m)}[l]$ the $l$th sample of the cross-correlation function in the time (range) direction for the $m$th pulse. This time cross correlation is calculated with the MATLAB xcorr function, separating OFDM pulses out by start time index and correlating the observed and reference signals over identical indices. So we have a cross-correlation of each pulse with each observed vector at the receiver; these are trimmed such that the first time index corresponds to a range of 0 meters and the last time index corresponds to the length of an 802.11g OFDM pulse (4 microseconds, 1200 meters when multiplied by the propagation speed of light).
 
@@ -169,7 +177,7 @@ One difficulty in using OFDM waveforms for localization is their relatively poor
 
 Additionally, there is a range ambiguity that appears at 3.2 $\mu s$, corresponding to insertion of the 0.8 $\mu s$ guard interval in 802.11g OFDM pulses. This peak is approximately 13 $dB$ down, agreeing well with \cite{Colone2012}. This would present a significant problem; however, as shown in this paper, there exist reliable methods of correcting the pulse using windowing techniques. These techniques were not explored in this project, so the effect of the extra peak will be seen in our range-Doppler maps as a bright spot downrange.
 
-Velocity or Doppler resolution is limited mainly by the integration time and has very nice autocorrelation properties over frequency, as shown in figure~\ref{fig:autocorrdopp}.
+Velocity or Doppler resolution is limited mainly by the integration time and has very nice autocorrelation properties over frequency, as shown in figure~\ref{fig:autocorrdopp}. This was generated using an integration time of 1 second, which is the integration time used throughout this paper including the simulation results and corresponds to a velocity resolution of 0.125 $m/s$ per bin, as mentioned above.
 
 \begin{figure}
 	\caption{Autocorrelation function of WiFi data over Doppler shift dimension.}
@@ -182,24 +190,31 @@ Velocity or Doppler resolution is limited mainly by the integration time and has
 
 The Extensive Cancellation Algorithm for removing direct path, multipath, and clutter echoes in passive radar is presented in \cite{Colone2006}, \cite{Colone2009}, and \cite{Colone2012}. It is essentially a Least-Squares algorithm that assumes clutter is in the nearest $K$ range bins and middle $P$ Doppler bins. The algorithm attempts to solve the problem
 
-$ \min_{\alpha}(\|s_{obs} - X\alpha\|^2) $
+\begin{align*}
+ \min_{\alpha}(\|s_{obs} - X\alpha\|^2) 
+\end{align*}
 
 Where $s_{obs}$ is the observed signal at the receiver of dimension $N x 1$. This is the "minimum residual signal power" after cancelling the clutter, direct path, and close range ground echoes in the aforementioned $K$ range bins and $P$ Doppler bins. The matrix X is
 
-$X = B[\Lambda_{-P}S_{ref} \cdots \Lambda_{-1}S_{ref} \hspace{5 mm} S_{ref} \hspace{5mm} \Lambda_{1}S_{ref} \cdots \Lambda_{P}S_{ref}]$
+\begin{align*}
+X = B[\Lambda_{-P}S_{ref} \cdots \Lambda_{-1}S_{ref} \hspace{5 mm} S_{ref} \hspace{5mm} \Lambda_{1}S_{ref} \cdots \Lambda_{P}S_{ref}]
+\end{align*}
 
 where $B$ is the following permutation matrix
 
-$B = \left \{b_{ij} \right \} $
+\begin{align*}
+B = \left \{b_{ij} \right \} 
+\end{align*}
 
-$\Lambda_p = 
+\begin{align*}
+\Lambda_p = 
 	\begin{bmatrix}
 	 1			&		0				&		\cdots		&		0 \\
 	 0			&		\exp{j2\pi p}	&		\cdots		&		0 \\
 	 \vdots 	&		\vdots			&		\ddots		&		\vdots \\
 	 0			&		0				&		\cdots		&		\exp{j2\pi p(N + R - 1)}
 	\end{bmatrix}
-$
+\end{align*}
 TODO
 
 \section{Main Results (EXPECTATIONS)}
@@ -226,6 +241,73 @@ If the theorem only requires a short proof, then give the proof immediately afte
 \section{Simulations}
 \subsection{Simulating Indoor Channel with Multipath Fading}
 The first step to simulate passive radar in an indoor setting is build a model for indoor fading. It is difficult to create a model that perfectly models walls, ceilings, furniture, etc. This project used an approach similar to that described in \cite{Holt}. This project implemented a ray tracing simulation to estimate the impulse response of the channel in an environment with walls and a moving object. 
+
+\subsection{Choosing Scenarios}
+Next, it is necessary to choose some representative scenarios. The first is simply a transmitter, receiver and target on a line with the target moving either toward or away from the receiver, as represented in (TODO: ref). We used both directions to ensure that the Doppler shift of the target was appearing at the correct location.
+
+The final case is a more realistic scenario with the target and transmitter in a room and the receiver listening from outside. This is expected to more reasonably represent some of the difficulties in such an application, such as multipath from reflections off of walls and reduced received power level due to attenuation. This scenario is shown in (TODO: ref)
+
+\subsection{Generating Range-Doppler Maps}
+Finally, range-Doppler maps were generated using equation \eqref{eq:2dccapprox}. We will explain how these maps correspond to the simulation scenarios.
+
+\subsection{Scenario 1 and 2 Results}
+
+\begin{figure}[H]
+	\caption{Graphical representation of first simulation scenario.}
+	\centering
+	\includegraphics[width=400pt]{figures/sim1.png}
+	\label{fig:sim1}
+\end{figure}
+
+\begin{figure}[H]
+	\caption{Graphical representation of second simulation scenario.}
+	\centering
+	\includegraphics[width=400pt]{figures/sim2.png}
+	\label{fig:sim2}
+\end{figure}
+
+\begin{figure}[H]
+	\caption{Range-Doppler map of first simulation scenario}
+	\centering
+	\includegraphics[width=400pt]{figures/rdm1.png}
+	\label{fig:rdm1}
+\end{figure}
+
+\begin{figure}[H]
+	\caption{Range-Doppler map of first simulation scenario}
+	\centering
+	\includegraphics[width=400pt]{figures/rdm2.png}
+	\label{fig:rdm2}
+\end{figure}
+
+The first scenario as seen in figures ~\ref{fig:sim1} and ~\ref{fig:rdm1} simply has the transmitter, receiver and target in a line with the target moving 4 $m/s$ toward the receiver and transmitter. There are no walls or added noise so we expect a strong return from the target to appear in time delay bin 4 and Doppler bin -32. Time bin 4 is 3 after the direct signal and corresponds to a two-way distance of 45m, Doppler bin -32 with bin spacing of 0.125 $m/s$ corresponds to the velocity of -4 $m/s$. Also note that both the direct path and target return spreads throughout all ranges due to the autocorrelation function issues pointed out earlier in the report. In fact, the 0 Doppler slice is exactly equal to the autocorrelation function of the data in this case. The range ambiguity at the 3.2 $\mu s$ time delay is also apparent and may be confused for additional targets by a full system.
+
+The second scenario simply has the target moving in the opposite direction and additionally has a vertical wall placed in between the transmitter/receiver and target.
+
+\subsection{Scenario 3 Results}
+
+\begin{figure}[H]
+	\caption{Graphical representation of third simulation scenario.}
+	\centering
+	\includegraphics[width=400pt]{figures/sim2.png}
+	\label{fig:sim2}
+\end{figure}
+
+\begin{figure}[H]
+	\caption{Range-Doppler map of third simulation scenario}
+	\centering
+	\includegraphics[width=400pt]{figures/rdm3.png}
+	\label{fig:rdm3}
+\end{figure}
+
+\begin{figure}[H]
+	\caption{Range-Doppler map of third simulation scenario zoomed in}
+	\centering
+	\includegraphics[width=400pt]{figures/rdm3zoom.png}
+	\label{fig:rdm3zoom}
+\end{figure}
+
+This scenario has the transmitter and target inside a 40x30 $m^2$ room with its left corner at $[0, 0]$, the transmitter positioned at $[20, 1]$, the target positioned at $[20, 15]$ and moving at $-2 m/s$ in the $y$-direction, and the receiver positioned outside the room at $[20, -5]$. The expected two-way range in this case would be approximately 34 $m$ and would shrink to 30 $m$ after 1 second. Given our velocity spacing per bin, we expect the target to appear in Doppler bin -16 ($-2 / 0.125$). Given the 30 $m$ range, this means the target should appear 2 time delay bins following the direct path signal. Additionally, given the multipath environment, we see a weaker, Doppler-spread echo off of the back wall of the room, which has a 2-way range of an additional 30 $m$ and correspondingly appears 2 time bins later than the first echo.
 
 \section{Simulations (Expectations)} 
 
